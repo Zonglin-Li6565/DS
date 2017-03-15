@@ -106,7 +106,7 @@ void Unicast::stop() {
 
 void Unicast::message_arrives(std::string msg) {
     std::smatch match;
-    std::regex expression("<.+>");
+    std::regex expression("^<.+>");
     pthread_cond_t * cond;
     std::regex_search (msg, match, expression);
     if (match.empty()) {
@@ -121,7 +121,7 @@ void Unicast::message_arrives(std::string msg) {
     rec_msg = msg;
     cond = &wait_conds[tag];
     pthread_mutex_unlock(&mutex);
-    pthread_cond_signal(cond);
+    pthread_cond_broadcast(cond);
 }
 
 int Unicast::get_delay_bound() {

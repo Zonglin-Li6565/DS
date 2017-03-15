@@ -8,21 +8,36 @@
 #include <stdlib.h>
 #include "unicast.h"
 
+void * thread_1(void * arg);
+void * thread_2(void * arg);
+
 int main(int argc, char* argv[]) {
     /**
      * call with a.out selfport, id, remote ip 1, remote port 1, remote ip 2, remote port 2
      */
-    // Unicast unicast(atoi(argv[1]), 5000);
-    // while(1) {
-    //     std::this_thread::sleep_for (std::chrono::seconds(1));
-    //     unicast.send("hello from" + std::string(argv[2]), argv[3], atoi(argv[4]));
-    //     std::cout << unicast.deliever() << std::endl;
-    //     unicast.send("hello from" + std::string(argv[2]), argv[5], atoi(argv[6]));
-    // }
+    pthread_t tid1;
+    pthread_t tid2;
     Unicast unicast(atoi(argv[1]), 1000);
+
+    pthread_create(&tid1, NULL, thread_1, &unicast);
+    pthread_create(&tid2, NULL, thread_2, &unicast);
+
+    pthread_join(tid1, NULL);
+    pthread_join(tid2, NULL);
+}
+
+void * thread_1(void * arg) {
+    Unicast * unicast = (Unicast *) arg;
     while(1) {
         std::this_thread::sleep_for (std::chrono::seconds(1));
-        unicast.send("test", "hello from" + std::string("test process"), "127.0.0.1", 12281);
-        std::cout << unicast.deliever("back") << std::endl;
+        std::cout << "thread 1 " << unicast->deliever("for1") << std::endl;
+    }
+}
+
+void * thread_2(void * arg) {
+    Unicast * unicast = (Unicast *) arg;
+    while(1) {
+        std::this_thread::sleep_for (std::chrono::seconds(1));
+        std::cout << "thread 2 " << unicast->deliever("for2") << std::endl;
     }
 }
