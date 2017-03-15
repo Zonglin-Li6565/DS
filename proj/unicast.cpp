@@ -39,7 +39,7 @@ Unicast::Unicast (int portnum, int max_delay) : port(portnum), delay_bound(max_d
     mutex = PTHREAD_MUTEX_INITIALIZER;
 }
 
-void Unicast::send (std::string msg, std::string server_ip, int server_port) {
+int Unicast::send (std::string msg, std::string server_ip, int server_port) {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
         printf("error to open sender socket\n");
@@ -52,23 +52,16 @@ void Unicast::send (std::string msg, std::string server_ip, int server_port) {
     if (connect(sockfd, (struct sockaddr *)&remoteaddr, sizeof(remoteaddr)) < 0) {
         printf("failed to connect server %s : %d\n", server_ip.c_str(), server_port);
         close(sockfd);
-        return;
+        return -1;
     }
     if (write(sockfd, msg.c_str(), msg.size()))
     close(sockfd);
+    return 0;
 }
 
-void Unicast::send (std::string tag, std::string msg, std::string ipaddr, int port) {
+int Unicast::send (std::string tag, std::string msg, std::string ipaddr, int port) {
     msg = "<" + tag + ">" + msg;
-    send(msg, ipaddr, port);
-}
-
-std::string Unicast::deliever () {
-    std::string copy;
-    pthread_cond_wait(&wait, &mutex);
-    copy = rec_msg;
-    pthread_mutex_unlock(&mutex);
-    return copy;
+    return send(msg, ipaddr, port);
 }
 
 std::string Unicast::deliever (std::string tag) {
