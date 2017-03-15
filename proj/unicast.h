@@ -5,21 +5,6 @@
 #include <vector>
 #include <map>
 
-// namespace structs {
-    
-//     struct receiver_struct {
-//         pthread_mutex_t lock;
-//         void * owner;
-//         bool stillOn;
-//     };
-
-//     struct sender_struct {
-//         pthread_mutex_t lock;
-//         void * owner;
-//     };
-
-// }
-
 class Unicast {
 public:
 
@@ -29,6 +14,8 @@ public:
 
     void send (std::string msg, std::string ipaddr, int port);
 
+    void send (std::string tag, std::string msg, std::string ipaddr, int port);
+
     int get_port();
 
     bool running();
@@ -36,6 +23,8 @@ public:
     void stop();
 
     std::string deliever ();
+
+    std::string deliever (std::string tag);
 
     void message_arrives(std::string msg);
 

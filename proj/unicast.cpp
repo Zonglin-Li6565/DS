@@ -57,9 +57,26 @@ void Unicast::send (std::string msg, std::string server_ip, int server_port) {
     close(sockfd);
 }
 
+void Unicast::send (std::string tag, std::string msg, std::string ipaddr, int port) {
+    msg = "<" + tag + ">" + msg;
+    send(msg, ipaddr, port);
+}
+
 std::string Unicast::deliever () {
     std::string copy;
     pthread_cond_wait(&wait, &mutex);
+    copy = rec_msg;
+    pthread_mutex_unlock(&mutex);
+    return copy;
+}
+
+std::string Unicast::deliever (std::string tag) {
+    std::string copy;
+    if (wait_conds.find(tag) == wait_conds.end()) {
+        pthread_cond_t newcond;
+        wait_conds[tag] = newcond;
+    }
+    pthread_cond_wait(&wait_conds[tag], &mutex);
     copy = rec_msg;
     pthread_mutex_unlock(&mutex);
     return copy;
