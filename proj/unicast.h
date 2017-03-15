@@ -25,11 +25,12 @@ public:
      * Send a message to a specified host. Thread safe
      * @param tag       the tag for the message
      * @param msg       the message body
-     * @param ipaddr    the ip address
-     * @param port      port number
-     * @return 0 if success, -1 if failed.
+     * @param host_ip   the ip address
+     * @param host_port port number
+     * @return 0 if success; -1 if failed to connect server; -2 if failed
+     *         to open the socket
      */
-    int send (std::string tag, std::string msg, std::string ipaddr, int port);
+    int send (std::string tag, std::string msg, std::string host_ip, int host_port);
 
     /**
      * Returns the port information. Thread safe
@@ -83,8 +84,6 @@ private:
 
     std::map<std::string, pthread_cond_t> wait_conds;
     pthread_mutex_t mutex;
-
-    int send (std::string msg, std::string ipaddr, int port);
 };
 
 #endif

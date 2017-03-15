@@ -35,33 +35,28 @@ Unicast::Unicast (int portnum) : port(portnum) {
 
 Unicast::Unicast (int portnum, int max_delay) : port(portnum), delay_bound(max_delay){
     pthread_create(&server_thrd, NULL, receiver_thread, this);
-    wait = PTHREAD_COND_INITIALIZER;
     mutex = PTHREAD_MUTEX_INITIALIZER;
 }
 
-int Unicast::send (std::string msg, std::string server_ip, int server_port) {
+int Unicast::send (std::string tag, std::string msg, std::string host_ip, int host_port) {
+    msg = "<" + tag + ">" + msg;
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
         printf("error to open sender socket\n");
-        return;
+        return -2;
     }
     struct sockaddr_in remoteaddr;
     remoteaddr.sin_family = AF_INET;
-    remoteaddr.sin_addr.s_addr = inet_addr(server_ip.c_str());
-    remoteaddr.sin_port = htons(server_port);
+    remoteaddr.sin_addr.s_addr = inet_addr(host_ip.c_str());
+    remoteaddr.sin_port = htons(host_port);
     if (connect(sockfd, (struct sockaddr *)&remoteaddr, sizeof(remoteaddr)) < 0) {
-        printf("failed to connect server %s : %d\n", server_ip.c_str(), server_port);
+        printf("failed to connect server %s : %d\n", host_ip.c_str(), host_port);
         close(sockfd);
         return -1;
     }
     if (write(sockfd, msg.c_str(), msg.size()))
     close(sockfd);
     return 0;
-}
-
-int Unicast::send (std::string tag, std::string msg, std::string ipaddr, int port) {
-    msg = "<" + tag + ">" + msg;
-    return send(msg, ipaddr, port);
 }
 
 std::string Unicast::deliever (std::string tag) {
