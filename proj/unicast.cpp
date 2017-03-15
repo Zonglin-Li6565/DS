@@ -118,7 +118,7 @@ void Unicast::message_arrives(std::string msg) {
         pthread_mutex_unlock(&mutex);
         return;
     }
-    rec_msg = msg;
+    rec_msg = msg.substr(match.position(0) + match.length(0), msg.size());
     cond = &wait_conds[tag];
     pthread_mutex_unlock(&mutex);
     pthread_cond_broadcast(cond);
