@@ -13,6 +13,7 @@
 #include <string.h>
 #include <chrono>
 #include <thread>
+#include <regex>
 
 #include "unicast.h"
 
@@ -72,11 +73,15 @@ std::string Unicast::deliever () {
 
 std::string Unicast::deliever (std::string tag) {
     std::string copy;
+    pthread_cond_t * cond;
+    pthread_mutex_lock(&mutex);
     if (wait_conds.find(tag) == wait_conds.end()) {
         pthread_cond_t newcond;
         wait_conds[tag] = newcond;
     }
-    pthread_cond_wait(&wait_conds[tag], &mutex);
+    cond = &wait_conds[tag];
+    pthread_mutex_unlock(&mutex);
+    pthread_cond_wait(cond, &mutex);
     copy = rec_msg;
     pthread_mutex_unlock(&mutex);
     return copy;
@@ -101,10 +106,22 @@ void Unicast::stop() {
 }
 
 void Unicast::message_arrives(std::string msg) {
+    std::smatch match;
+    std::regex expression("<.+>");
+    pthread_cond_t * cond;
+    std::regex_search (msg, match, expression);
+    if (match.empty())
+        return;
+    std::string tag = msg.substr(match.position(0) + 1, match.position(0) + match.length(0) - 1);
     pthread_mutex_lock(&mutex);
+    if (wait_conds.find(tag) == wait_conds.end()) {
+        pthread_mutex_unlock(&mutex);
+        return;
+    }
     rec_msg = msg;
+    cond = &wait_conds[tag];
     pthread_mutex_unlock(&mutex);
-    pthread_cond_signal(&wait);
+    pthread_cond_signal(cond);
 }
 
 int Unicast::get_delay_bound() {
