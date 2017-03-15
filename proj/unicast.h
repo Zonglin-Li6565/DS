@@ -1,5 +1,9 @@
+#ifndef UNICAST_H
+#define UNICAST_H
+
 #include <string>
 #include <vector>
+#include <map>
 
 namespace structs {
     
@@ -51,5 +55,8 @@ private:
     volatile bool terminated;
 
     pthread_cond_t wait;
+    std::map<std::string, pthread_cond_t> wait_conds;
     pthread_mutex_t mutex;
 };
+
+#endif

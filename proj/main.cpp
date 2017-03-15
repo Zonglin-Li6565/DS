@@ -10,12 +10,13 @@
 
 int main(int argc, char* argv[]) {
     /**
-     * call with a.out selfport, remote ip 1, remote port 1, id
+     * call with a.out selfport, id, remote ip 1, remote port 1, remote ip 2, remote port 2
      */
     Unicast unicast(atoi(argv[1]), 5000);
     while(1) {
         std::this_thread::sleep_for (std::chrono::seconds(1));
-        unicast.send("hello from" + std::string(argv[4]), argv[2], atoi(argv[3]));
+        unicast.send("hello from" + std::string(argv[2]), argv[3], atoi(argv[4]));
         std::cout << unicast.deliever() << std::endl;
+        unicast.send("hello from" + std::string(argv[2]), argv[5], atoi(argv[6]));
     }
 }

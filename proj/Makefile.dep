@@ -1,0 +1,5 @@
+totalorder.o: totalorder.cpp totalorder.h
+unicast.o: unicast.cpp unicast.h
+multicast.o: multicast.cpp multicast.h
+terminal.o: terminal.cpp terminal.h
+main.o: main.cpp unicast.h

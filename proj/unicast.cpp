@@ -107,7 +107,6 @@ void * single_connect_thread(void *arg) {
         msg += buffer;
     } while (n > 0);
     std::this_thread::sleep_for(std::chrono::milliseconds(rand() % uc->get_delay_bound()));
-    printf("to deliever\n");
     uc->message_arrives(msg);
     delete nc;
     close(sockfd);
