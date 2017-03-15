@@ -5,20 +5,20 @@
 #include <vector>
 #include <map>
 
-namespace structs {
+// namespace structs {
     
-    struct receiver_struct {
-        pthread_mutex_t lock;
-        void * owner;
-        bool stillOn;
-    };
+//     struct receiver_struct {
+//         pthread_mutex_t lock;
+//         void * owner;
+//         bool stillOn;
+//     };
 
-    struct sender_struct {
-        pthread_mutex_t lock;
-        void * owner;
-    };
+//     struct sender_struct {
+//         pthread_mutex_t lock;
+//         void * owner;
+//     };
 
-}
+// }
 
 class Unicast {
 public:
