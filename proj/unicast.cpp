@@ -76,8 +76,7 @@ std::string Unicast::deliever (std::string tag) {
     pthread_cond_t * cond;
     pthread_mutex_lock(&mutex);
     if (wait_conds.find(tag) == wait_conds.end()) {
-        pthread_cond_t newcond;
-        wait_conds[tag] = newcond;
+        wait_conds[tag] = PTHREAD_COND_INITIALIZER;
     }
     cond = &wait_conds[tag];
     pthread_mutex_unlock(&mutex);
@@ -110,9 +109,10 @@ void Unicast::message_arrives(std::string msg) {
     std::regex expression("<.+>");
     pthread_cond_t * cond;
     std::regex_search (msg, match, expression);
-    if (match.empty())
+    if (match.empty()) {
         return;
-    std::string tag = msg.substr(match.position(0) + 1, match.position(0) + match.length(0) - 1);
+    }
+    std::string tag = msg.substr(match.position(0) + 1, match.position(0) + match.length(0) - 2);
     pthread_mutex_lock(&mutex);
     if (wait_conds.find(tag) == wait_conds.end()) {
         pthread_mutex_unlock(&mutex);
@@ -137,7 +137,6 @@ void * single_connect_thread(void *arg) {
     do {
         n = read(sockfd, buffer, 255);
         buffer[n] = '\0';
-        printf("%s\n", buffer);
         msg += buffer;
     } while (n > 0);
     std::this_thread::sleep_for(std::chrono::milliseconds(rand() % uc->get_delay_bound()));
