@@ -17,6 +17,8 @@
 
 #include "unicast.h"
 
+#define IN_BUF_SIZE     256
+
 struct connect_info {
     Unicast * unicast;
     int sockfd;
@@ -26,9 +28,6 @@ void * receiver_thread(void *arg);
 void * single_connect_thread(void *arg);
 void * sender_thread(void *arg);
 
-/**
- * Create a new socket server on port portnum
- */
 Unicast::Unicast (int portnum) : port(portnum) {
     pthread_create(&server_thrd, NULL, receiver_thread, this);
 }
@@ -68,7 +67,7 @@ std::string Unicast::deliever (std::string tag) {
     }
     cond = &wait_conds[tag];
     pthread_mutex_unlock(&mutex);
-    pthread_cond_wait(cond, &mutex);
+    pthread_cond_wait(cond, &mutex);        // sleep on condition var
     copy = rec_msg;
     pthread_mutex_unlock(&mutex);
     return copy;
@@ -109,7 +108,7 @@ void Unicast::message_arrives(std::string msg) {
     rec_msg = msg.substr(match.position(0) + match.length(0), msg.size());
     cond = &wait_conds[tag];
     pthread_mutex_unlock(&mutex);
-    pthread_cond_broadcast(cond);
+    pthread_cond_broadcast(cond);       // wake up all
 }
 
 int Unicast::get_delay_bound() {
@@ -120,10 +119,10 @@ void * single_connect_thread(void *arg) {
     connect_info * nc = (connect_info *) arg;
     Unicast * uc = nc->unicast;
     std::string msg;
-    char buffer[256];
+    char buffer[IN_BUF_SIZE];
     int n, sockfd = nc->sockfd;
     do {
-        n = read(sockfd, buffer, 255);
+        n = read(sockfd, buffer, IN_BUF_SIZE - 1);
         buffer[n] = '\0';
         msg += buffer;
     } while (n > 0);
