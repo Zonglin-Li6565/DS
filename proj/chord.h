@@ -22,7 +22,7 @@ private:
     std::vector<std::pair<std::string, int> > finger_table;
     std::map<std::string, std::string> local_table;
 
-    unsigned char hash(std::string);
+    unsigned char hash(std::string str);
 };
 
 #endif
