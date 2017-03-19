@@ -60,6 +60,12 @@ void Chord::set_peers(const std::map<int, std::pair<std::string, int> > & table)
 int Chord::set(std::string key, std::string value) {
     unsigned char h = hash((unsigned char *)key.c_str(), key.size());
 
+    if (h == self_hash) {               // just store.
+        local_table[key] = value;
+        return 0;
+    }
+
+    
     return -1;
 }
 
@@ -81,4 +87,8 @@ unsigned char Chord::hash(unsigned char * char_arr, int length) {
         h = ran_table[h ^ (char_arr[i])];
     }
     return h;
+}
+
+void Chord::deamon() {
+    
 }

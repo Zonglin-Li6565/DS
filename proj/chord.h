@@ -5,6 +5,8 @@
 #include <vector>
 #include <map>
 #include <utility>
+#include <thread>
+#include <pthread.h>
 
 #include "unicast.h"
 
@@ -29,8 +31,11 @@ private:
     std::vector<std::pair<std::string, int> > successors;
     std::map<std::string, std::string> local_table;
     Unicast cast_helper;
+    std::thread background_thrd;
+    pthread_mutex_t mutex;
 
     unsigned char hash(unsigned char * char_arr, int length);
+    void deamon();
 };
 
 #endif
