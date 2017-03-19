@@ -18,6 +18,7 @@
 #include <errno.h>
 
 #include "unicast.h"
+#include "exception.h"
 
 #define IN_BUF_SIZE     256
 
@@ -56,17 +57,7 @@ int Unicast::send (std::string tag, std::string msg, std::string host_ip, int ho
 }
 
 std::string Unicast::deliever (std::string tag) {
-    std::string copy;
-    pthread_cond_t * cond;
-    pthread_mutex_lock(&mutex);
-    if (wait_conds.find(tag) == wait_conds.end()) {
-        wait_conds[tag] = PTHREAD_COND_INITIALIZER;
-    }
-    cond = &wait_conds[tag];
-    pthread_cond_wait(cond, &mutex);        // sleep on condition var
-    copy = rec_msg;
-    pthread_mutex_unlock(&mutex);
-    return copy;
+    return deliever(tag, -1);
 }
 
 std::string Unicast::deliever (std::string tag, int timeout_ms) {
@@ -81,14 +72,17 @@ std::string Unicast::deliever (std::string tag, int timeout_ms) {
 
     if (timeout_ms >= 0) {
         clock_gettime(CLOCK_REALTIME, &ts);
-        ts->tv_sec += timeout_ms / 1000;
-        ts->tv_nsec += (timeout_ms % 1000) * 1000000;
+        ts.tv_sec += timeout_ms / 1000;
+        ts.tv_nsec += (timeout_ms % 1000) * 1000000;           // nano second
         int ret = pthread_cond_timedwait(cond, &mutex, &ts);
-        if (ret)
+        if (ret == ETIMEDOUT) {
+            pthread_mutex_unlock(&mutex);
+            throw TIME_OUT;
+        }
     } else {
         pthread_cond_wait(cond, &mutex);        // sleep on condition var
     }
-    
+
     copy = rec_msg;
     pthread_mutex_unlock(&mutex);
     return copy;
