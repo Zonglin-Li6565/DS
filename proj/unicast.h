@@ -45,6 +45,11 @@ public:
     bool running();
 
     /**
+     * Start the server thread
+     */
+    void begin();
+
+    /**
      * Stop the unicast. Thread safe
      */
     void stop();
@@ -56,6 +61,14 @@ public:
      * @return the message body (without tag)
      */
     std::string deliever (std::string tag);
+
+    /**
+     * Wait for the message to arrive. With timeout 
+     * @param  tag     the tag of the message currently waiting for
+     * @param  timeout 
+     * @return         [description]
+     */
+    std::string deliever (std::string tag, int timeout);
 
     /**
      * Public helper function. Called by the internal threads

@@ -1,38 +1,41 @@
 #include "chord.h"
 #include <cstring>
 
-static unsigned char ran_table[256] = {
-    20,  92,  47,  96,   6, 104,  41,  31,  38,  23, 127,  98,  22,
-    79,  16,   9, 113,  62,  29,  65,  67,  69,  76,  52,  99,  70,
-    85,  95,  19,  54,  94,   3,  53,  12,  81,  34,   0,  61,  55,
-    37,   8, 121,  40, 112,  18, 109,  35, 125,  56,  59,  74,  30,
-    117,  24,  87,  33,  14,  89,  25,  66,  46,  77,  51, 120, 107,
-     4,  42, 122, 108,   5,  26,  28,  27,  91,  71,  90,  39, 119,
-    78, 111,  44,  45, 115,  80,  72,   1,  15, 106,  88, 101, 100,
-    10, 110,  57,  58,  49,  36,   7,  63,  32, 118, 124,  73,  50,
-    17,  93,  86,  48, 103,  11,  21,  97, 123,  82,   2,  64,  84,
-    116, 126, 114,  60, 102,  68, 105,  13,  75,  43,  83,
-    79,  48,  78,   1,  26,  69,  70,  73, 105,  31,  23,  89, 112,
-    10,  98,  80,  99, 113,  12,  21,  57,  95,  61,  76,  83,  25,
-    108,  63,  42,  66, 124,  47, 100,  93, 102,  74,  19,  18,  88,
-    58,   9,  81,  55, 109,  59,  11, 115,  13,  97,  68,  22,  82,
-    119,  30, 121,  71,  96,  51,  56, 114, 126,  85,  91,  92,  46,
-    45,  77,  65, 103,  33,   2,  17,  72,   3,  27,  52,  28,  53,
-    94,  44,  84,  60,  40,  43,  41,  90,  15, 111,  39,   4,  64,
-    32, 110, 125, 122, 123,   0,  36, 120, 101, 116, 104,   6,  20,
-    50,  75,  54,  34,   5,  37,  87,  49,  62, 127,  86,  16, 107,
-    118,  14,  38, 117,  35,   7,  24,   8, 106,  29,  67
+static unsigned char ran_table[MAX_NUM_PEERS] = {
+    62,  34,  84,  25, 176, 217,  71, 201,  30,  44, 196,  88,  23,
+    198, 250, 195, 174,  65, 113,   9, 249, 132, 253,  31,  57, 155,
+    254,  40, 157,  94, 169, 154,  38, 210, 123,  48,  83, 184, 153,
+    47,  36, 115,  98,   0, 118, 199, 102,  66,  20, 252,  77, 145,
+    61, 127, 220, 131,  35, 120, 204, 111, 172,   2,  28, 138,  45,
+    215, 105, 224, 112,   3,  37,  87,  12, 235, 180,  55,  19, 255,
+     4, 185, 121, 207, 236,  79, 133, 140, 233, 119,  18,  46,  93,
+    24, 141, 251,  92,  68, 219, 244, 228, 103,  67,  33, 107, 161,
+    135, 136,  69,  64, 125,   8, 212, 134,  15, 240, 139,  10, 168,
+    82, 137, 230, 152,  53, 104,  43, 109, 173,  85,  91, 129, 163,
+    126, 187, 158, 164, 182, 197, 241,  78,  95, 130, 245, 165,  42,
+    116, 248, 193, 246, 171, 177,  13, 232, 238,  22, 117, 148, 237,
+    206,   7, 191,  29, 231,  80, 159,  74,  72,  56, 247,  51,  97,
+    229,  21, 234, 181,   5, 150, 186,  59,  14, 208, 200,  49, 101,
+    63, 160,  52, 156, 106,   1,  73,  90, 142,  16, 211,   6, 221,
+    81, 225,  11,  41, 188, 128, 146, 194, 124, 203, 122, 213, 242,
+    143, 226,  50, 205,  27, 170,  58, 239, 183, 162,  86, 110, 149,
+    147, 144, 243, 209,  70,  96, 227,  99,  76,  39, 175, 216, 167,
+    218, 151, 189, 222, 114,  32,  89, 108, 214,  26, 178, 190, 223,
+    75, 100, 166,  17, 202,  60, 192,  54, 179
 };
 
 void Chord::set_peers(const std::map<int, std::pair<std::string, int> > & table) {
-    // At most 128 peers
+    // At most 256 peers
+    // input is a map from id to pair <id addr, port>
     const std::pair<std::string, int> * lookup[MAX_NUM_PEERS];
     memset(lookup, 0, sizeof(lookup));
     for (auto it = table.begin(); it != table.end(); it ++) {
-        lookup[it->first] = &(it->second);
+        unsigned char * id = (unsigned char *)&(it->first);
+        lookup[hash(id, 4)] = &(it->second);
     }
+    // fill the finger table
     for (int i = 0; (1 << i) < MAX_NUM_PEERS; i++) {
-        int idx = self_id + (1 << i);
+        int idx = (self_hash + (1 << i)) % MAX_NUM_PEERS;
         if (lookup[idx] == NULL) {
             for (int j = idx - 1; j >= 0; j --) {
                 if (lookup[j] != NULL) {
@@ -43,9 +46,20 @@ void Chord::set_peers(const std::map<int, std::pair<std::string, int> > & table)
             finger_table.push_back(*lookup[idx]);
         }
     }
+    // find successors
+    for (int i = 0, j = 0; i < MAX_NUM_PEERS && j < 2; i ++) {
+        int idx = (i + self_hash) % MAX_NUM_PEERS;
+        if (lookup[idx] != NULL) {
+            j ++;
+            successors.push_back(*lookup[j]);
+        }
+    }
+    cast_helper.begin();    // start the server thread
 }
 
 int Chord::set(std::string key, std::string value) {
+    unsigned char h = hash((unsigned char *)key.c_str(), key.size());
+
     return -1;
 }
 
@@ -61,10 +75,9 @@ std::string Chord::list_local() {
     return "";
 }
 
-unsigned char Chord::hash(std::string str) {
-    const char * char_arr = str.c_str();
+unsigned char Chord::hash(unsigned char * char_arr, int length) {
     unsigned char h = 0;
-    for (int i = 0; i < str.size(); i++) {
+    for (int i = 0; i < length; i++) {
         h = ran_table[h ^ (char_arr[i])];
     }
     return h;

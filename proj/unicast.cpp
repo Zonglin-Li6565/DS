@@ -28,14 +28,9 @@ void * receiver_thread(void *arg);
 void * single_connect_thread(void *arg);
 void * sender_thread(void *arg);
 
-Unicast::Unicast (int portnum) : port(portnum) {
-    pthread_create(&server_thrd, NULL, receiver_thread, this);
-}
+Unicast::Unicast (int portnum) : port(portnum), mutex(PTHREAD_MUTEX_INITIALIZER){}
 
-Unicast::Unicast (int portnum, int max_delay) : port(portnum), delay_bound(max_delay){
-    pthread_create(&server_thrd, NULL, receiver_thread, this);
-    mutex = PTHREAD_MUTEX_INITIALIZER;
-}
+Unicast::Unicast (int portnum, int max_delay) : port(portnum), delay_bound(max_delay), mutex(PTHREAD_MUTEX_INITIALIZER){}
 
 int Unicast::send (std::string tag, std::string msg, std::string host_ip, int host_port) {
     msg = "<" + tag + ">" + msg;
@@ -66,7 +61,20 @@ std::string Unicast::deliever (std::string tag) {
         wait_conds[tag] = PTHREAD_COND_INITIALIZER;
     }
     cond = &wait_conds[tag];
+    pthread_cond_wait(cond, &mutex);        // sleep on condition var
+    copy = rec_msg;
     pthread_mutex_unlock(&mutex);
+    return copy;
+}
+
+std::string Unicast::deliever (std::string tag, int timeout) {
+    std::string copy;
+    pthread_cond_t * cond;
+    pthread_mutex_lock(&mutex);
+    if (wait_conds.find(tag) == wait_conds.end()) {
+        wait_conds[tag] = PTHREAD_COND_INITIALIZER;
+    }
+    cond = &wait_conds[tag];
     pthread_cond_wait(cond, &mutex);        // sleep on condition var
     copy = rec_msg;
     pthread_mutex_unlock(&mutex);
@@ -83,6 +91,16 @@ bool Unicast::running() {
     copy = !terminated;
     pthread_mutex_unlock(&mutex);
     return copy;
+}
+
+void Unicast::begin() {
+    pthread_mutex_lock(&mutex);
+    if (!terminated) {
+        pthread_mutex_unlock(&mutex);
+        return;
+    }
+    pthread_mutex_unlock(&mutex);
+    pthread_create(&server_thrd, NULL, receiver_thread, this);
 }
 
 void Unicast::stop() {
