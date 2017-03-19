@@ -1,6 +1,8 @@
 #ifndef EXCEPTION_H
 #define EXCEPTION_H
 
+typedef int m_exception;
+
 #define NULL_POINTER	10
 #define TIME_OUT	 	12
 

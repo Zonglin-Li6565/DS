@@ -7,6 +7,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include "unicast.h"
+#include "exception.h"
 
 void * thread_1(void * arg);
 void * thread_2(void * arg);
@@ -30,7 +31,11 @@ void * thread_1(void * arg) {
     Unicast * unicast = (Unicast *) arg;
     while(1) {
         std::this_thread::sleep_for (std::chrono::seconds(1));
-        std::cout << "thread 1:" << unicast->deliever("for1") << std::endl;
+        try {
+            std::cout << "thread 1:" << unicast->deliever("for1", 2000) << std::endl;
+        } catch(m_exception e) {
+            std::cout << "Timeout" << std::endl;
+        }
     }
 }
 
@@ -38,6 +43,10 @@ void * thread_2(void * arg) {
     Unicast * unicast = (Unicast *) arg;
     while(1) {
         std::this_thread::sleep_for (std::chrono::seconds(1));
-        std::cout << "thread 2:" << unicast->deliever("for2") << std::endl;
+        try {
+            std::cout << "thread 2:" << unicast->deliever("for2", 2000) << std::endl;
+        } catch(m_exception e) {
+            std::cout << "Timeout" << std::endl;
+        }
     }
 }
