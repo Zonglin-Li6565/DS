@@ -63,12 +63,12 @@ public:
     std::string deliever (std::string tag);
 
     /**
-     * Wait for the message to arrive. With timeout 
-     * @param  tag     the tag of the message currently waiting for
-     * @param  timeout 
-     * @return         [description]
+     * Wait for the message to arrive. With timeout. Throws exception on time out
+     * @param  tag        the tag of the message currently waiting for
+     * @param  timeout_ms milliseconds timeout (set to -1 for no timeout)
+     * @return            the message body (without tag)
      */
-    std::string deliever (std::string tag, int timeout);
+    std::string deliever (std::string tag, int timeout_ms);
 
     /**
      * Public helper function. Called by the internal threads
