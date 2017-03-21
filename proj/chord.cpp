@@ -55,7 +55,7 @@ void Chord::set_peers(const std::map<int, std::pair<std::string, int> > & table)
         }
     }
     // find successors
-    for (int i = 0, j = 0; i < MAX_NUM_PEERS && j < 2; i ++) {
+    for (int i = 0, j = 0; i < MAX_NUM_PEERS && j < NUM_SUCCESSORS; i ++) {
         int idx = (i + self_hash) % MAX_NUM_PEERS;
         if (lookup[idx] != NULL) {
             j ++;
@@ -143,7 +143,7 @@ void Chord::deamon() {
                 std::string key = getmatch(1, msg, match);
                 if (self_hash == hash(key.c_str(), key.size())) {       // just insert
                     goto label1;
-                }
+                } else 
                 break;
             case "set":
                 if (match.size() != 5) {
