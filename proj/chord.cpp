@@ -69,11 +69,7 @@ void Chord::set_peers(std::map<int, std::pair<std::string, int> > & table) {
 int Chord::set(std::string key, std::string value) {
     unsigned char h = hash((unsigned char *)key.c_str(), key.size());
 
-    if (h == self_hash) {               // just store.
-        local_table[key] = value;
-        return 0;
-    }
-
+    cast_helper.send(CHORD_TAG, "", "127.0.0.1", cast_helper.get_port());
     
     return -1;
 }
