@@ -226,7 +226,11 @@ void Chord::deamon() {
                 get_success = false;
             } else {
                 get_success = getmatch(1, msg, match) == "true";
-                for (int i = 2)
+                get_value = getmatch(2, msg, match);
+                owners.clear();
+                for (int i = 3; i < match.size(); i++) {
+                    owners.push_back(std::stoi(getmatch(i, msg, match)));
+                }
             }
             pthread_mutex_unlock(&mutex);
             pthread_cond_broadcast(&get_cond);
