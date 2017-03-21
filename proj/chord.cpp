@@ -1,6 +1,9 @@
 #include "chord.h"
 #include <cstring>
 
+#define getmatch(i, str, match) \
+    str.substr(match.position(i) + 1, match.position(i) + match.length(i) - 2)
+
 static unsigned char ran_table[MAX_NUM_PEERS] = {
     62,  34,  84,  25, 176, 217,  71, 201,  30,  44, 196,  88,  23,
     198, 250, 195, 174,  65, 113,   9, 249, 132, 253,  31,  57, 155,
@@ -120,6 +123,7 @@ void Chord::deamon() {
             break;
         }
         // message format:
+        //                type
         // looking:     <looking><key><value><(caller) ip><(caller) port>
         // set:         <set><key><value><(caller) ip><(caller) port>
         // get:         <get><key><(caller) ip><(caller) port>
@@ -129,6 +133,26 @@ void Chord::deamon() {
         std::smatch match;
         if (match.empty()) {
             continue;
+        }
+        std::string type = getmatch(0, msg, match);
+        switch (type) {
+            case "looking":
+                if (match.size() != 5) {
+                    continue;
+                }
+                std::string key = getmatch(1, msg, match);
+                if (self_hash == hash(key.c_str(), key.size()))
+                break;
+            case "set":
+                break;
+            case "get":
+                break;
+            case "setret":
+                break;
+            case "getret":
+                break;
+            default:
+                break;
         }
     }
 }
