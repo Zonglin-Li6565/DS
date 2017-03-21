@@ -120,6 +120,6 @@ void Chord::deamon() {
         if (!l_running) {
             break;
         }
-        
+        std::string msg = deliever(CHORD_TAG);
     }
 }
