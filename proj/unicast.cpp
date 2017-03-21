@@ -28,13 +28,12 @@ struct connect_info {
 
 void * receiver_thread(void *arg);
 void * single_connect_thread(void *arg);
-void * sender_thread(void *arg);
 
 Unicast::Unicast (int portnum) : port(portnum), mutex(PTHREAD_MUTEX_INITIALIZER){}
 
 Unicast::Unicast (int portnum, int max_delay) : port(portnum), delay_bound(max_delay), mutex(PTHREAD_MUTEX_INITIALIZER){}
 
-int Unicast::send (std::string tag, std::string msg, std::string host_ip, int host_port) {
+int Unicast::send (std::string tag, std::string msg, std::string host_ip, int host_port) const {
     msg = "<" + tag + ">" + msg;
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
@@ -55,11 +54,11 @@ int Unicast::send (std::string tag, std::string msg, std::string host_ip, int ho
     return 0;
 }
 
-std::string Unicast::deliever (std::string tag) {
+std::string Unicast::deliever (std::string tag) const {
     return deliever(tag, -1);
 }
 
-std::string Unicast::deliever (std::string tag, int timeout_ms) {
+std::string Unicast::deliever (std::string tag, int timeout_ms) const {
     std::string copy;
     pthread_cond_t * cond;
     struct timespec ts;
@@ -87,11 +86,11 @@ std::string Unicast::deliever (std::string tag, int timeout_ms) {
     return copy;
 }
 
-int Unicast::get_port() {
+int Unicast::get_port() const {
     return port;
 }
 
-bool Unicast::running() {
+bool Unicast::running() const {
     bool copy;
     pthread_mutex_lock(&mutex);
     copy = !terminated;
@@ -115,7 +114,7 @@ void Unicast::stop() {
     pthread_mutex_unlock(&mutex);
 }
 
-void Unicast::message_arrives(std::string msg) {
+void Unicast::message_arrives(std::string msg) const {
     std::smatch match;
     std::regex expression("^<.+>");
     pthread_cond_t * cond;
@@ -135,7 +134,7 @@ void Unicast::message_arrives(std::string msg) {
     pthread_cond_broadcast(cond);       // wake up all
 }
 
-int Unicast::get_delay_bound() {
+int Unicast::get_delay_bound() const {
     return delay_bound;
 }
 

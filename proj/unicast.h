@@ -31,19 +31,19 @@ public:
      * @return 0 if success; -1 if failed to connect server; -2 if failed
      *         to open the socket
      */
-    int send (std::string tag, std::string msg, std::string host_ip, int host_port);
+    int send (std::string tag, std::string msg, std::string host_ip, int host_port) const;
 
     /**
      * Returns the port information. Thread safe
      * @return the current port number of this instance
      */
-    int get_port();
+    int get_port() const;
 
     /**
      * Check whether the owner want to terminate. Thread safe
      * @return true if terminated; false otherwise
      */
-    bool running();
+    bool running() const;
 
     /**
      * Start the server thread
@@ -61,7 +61,7 @@ public:
      * @param tag   the tag of the message currently waiting for
      * @return the message body (without tag)
      */
-    std::string deliever (std::string tag);
+    std::string deliever (std::string tag) const;
 
     /**
      * Wait for the message to arrive. With timeout. Throws exception on time out
@@ -69,25 +69,25 @@ public:
      * @param  timeout_ms milliseconds timeout (set to -1 for no timeout)
      * @return            the message body (without tag)
      */
-    std::string deliever (std::string tag, int timeout_ms);
+    std::string deliever (std::string tag, int timeout_ms) const;
 
     /**
      * Public helper function. Called by the internal threads
      * @param msg   the raw mesage
      */
-    void message_arrives(std::string msg);
+    void message_arrives(std::string msg) const;
 
     /**
      * Get the delay bound.
      * @return the delay bound
      */
-    int get_delay_bound();
+    int get_delay_bound() const;
 
 private:
     int port;
 
     std::vector<std::string> sendbuf;
-    std::string rec_msg;
+    mutable std::string rec_msg;
 
     int delay_bound;        // delay in ms
 
@@ -96,8 +96,8 @@ private:
 
     volatile bool terminated;
 
-    std::map<std::string, pthread_cond_t> wait_conds;
-    pthread_mutex_t mutex;
+    mutable std::map<std::string, pthread_cond_t> wait_conds;
+    mutable pthread_mutex_t mutex;
 };
 
 #endif
