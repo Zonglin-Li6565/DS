@@ -112,7 +112,6 @@ void Chord::end() {
 
 void Chord::deamon() {
     bool l_running;
-
     while (true) {
         pthread_mutex_lock(&mutex);
         l_running = running;
@@ -120,6 +119,16 @@ void Chord::deamon() {
         if (!l_running) {
             break;
         }
-        std::string msg = deliever(CHORD_TAG);
+        // message format:
+        // looking:     <looking><key><value><(caller) ip><(caller) port>
+        // set:         <set><key><value><(caller) ip><(caller) port>
+        // get:         <get><key><(caller) ip><(caller) port>
+        // setret:      <setret><true/false>
+        // getret:      <getret><owner1id><owner2id>...
+        std::string msg = cast_helper.deliever(CHORD_TAG);
+        std::smatch match;
+        if (match.empty()) {
+            continue;
+        }
     }
 }

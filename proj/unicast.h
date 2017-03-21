@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 #include <pthread.h>
+#include <regex>
 
 class Unicast {
 public:
@@ -98,6 +99,8 @@ private:
 
     mutable std::map<std::string, pthread_cond_t> wait_conds;
     mutable pthread_mutex_t mutex;
+
+    const std::regex expression;
 };
 
 #endif

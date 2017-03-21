@@ -7,6 +7,7 @@
 #include <utility>
 #include <thread>
 #include <pthread.h>
+#include <regex>
 
 #include "unicast.h"
 
@@ -15,7 +16,7 @@
 
 class Chord {
 public:
-    Chord(int pid) : self_id(pid), cast_helper(pid), running(false){
+    Chord(int pid) : self_id(pid), cast_helper(pid), running(false), expression("^<.+>"){
         self_hash = hash((unsigned char *) &pid, 4);
     };
     ~Chord();
@@ -35,6 +36,7 @@ private:
     Unicast cast_helper;
     std::thread background_thrd;
     mutable pthread_mutex_t mutex;
+    const std::regex expression;
 
     // need protection
     bool running;

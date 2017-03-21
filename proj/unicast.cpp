@@ -12,7 +12,6 @@
 #include <string.h>
 #include <chrono>
 #include <thread>
-#include <regex>
 #include <time.h>
 #include <errno.h>
 
@@ -29,9 +28,9 @@ struct connect_info {
 void * receiver_thread(void *arg);
 void * single_connect_thread(void *arg);
 
-Unicast::Unicast (int portnum) : port(portnum), mutex(PTHREAD_MUTEX_INITIALIZER){}
+Unicast::Unicast (int portnum) : port(portnum), mutex(PTHREAD_MUTEX_INITIALIZER), expression("^<.+>"){}
 
-Unicast::Unicast (int portnum, int max_delay) : port(portnum), delay_bound(max_delay), mutex(PTHREAD_MUTEX_INITIALIZER){}
+Unicast::Unicast (int portnum, int max_delay) : port(portnum), delay_bound(max_delay), mutex(PTHREAD_MUTEX_INITIALIZER), expression("^<.+>"){}
 
 int Unicast::send (std::string tag, std::string msg, std::string host_ip, int host_port) const {
     msg = "<" + tag + ">" + msg;
@@ -116,7 +115,6 @@ void Unicast::stop() {
 
 void Unicast::message_arrives(std::string msg) const {
     std::smatch match;
-    std::regex expression("^<.+>");
     pthread_cond_t * cond;
     std::regex_search (msg, match, expression);
     if (match.empty()) {
