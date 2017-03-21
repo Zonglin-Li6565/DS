@@ -1,5 +1,6 @@
 #include "chord.h"
 #include <cstring>
+#include <pthread.h>
 
 #define getmatch(i, str, match) \
     str.substr(match.position(i) + 1, match.position(i) + match.length(i) - 2)
@@ -218,7 +219,7 @@ void Chord::deamon() {
                 }
             }
         } else if (type == "setret") {
-
+            pthread_cond_broadcast(set_cond);
         } else if (type == "getret") {
 
         }

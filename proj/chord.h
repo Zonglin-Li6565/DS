@@ -38,6 +38,8 @@ private:
     Unicast cast_helper;
     std::thread background_thrd;
     mutable pthread_mutex_t mutex;
+    mutable pthread_cond_t set_cond;
+    mutable pthread_cond_t get_cond;
     const std::regex expression;
 
     // need protection
