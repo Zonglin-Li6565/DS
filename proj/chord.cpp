@@ -70,7 +70,6 @@ void Chord::set_peers(std::map<int, std::pair<std::string, int> > & table) {
 }
 
 int Chord::set(std::string key, std::string value) {
-    unsigned char h = hash((unsigned char *)key.c_str(), key.size());
     std::string message = "<set><false><" + key + "><" + value 
                         + "><" + std::get<0>(self_addr) + "><" 
                         + std::to_string(std::get<1>(self_addr));
@@ -78,11 +77,18 @@ int Chord::set(std::string key, std::string value) {
     cast_helper.send(CHORD_TAG, message, std::get<0>(self_addr), std::get<1>(self_addr));
     pthread_cond_wait(&set_cond, &mutex);
     pthread_mutex_unlock(&mutex);
-    return -1;
+    return 0;
 }
 
 std::string Chord::get(std::string key) {
-    return "";
+    std::string message = "<get><false><" + key + "><"
+                        + std::get<0>(self_addr) + "><" 
+                        + std::to_string(std::get<1>(self_addr));
+    pthread_mutex_lock(&mutex);
+    cast_helper.send(CHORD_TAG, message, std::get<0>(self_addr), std::get<1>(self_addr));
+    pthread_cond_wait(&get_cond, &mutex);
+    pthread_mutex_unlock(&mutex);
+    return 0;
 }
 
 std::vector<int> Chord::owner(std::string key) {
