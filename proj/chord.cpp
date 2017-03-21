@@ -219,9 +219,17 @@ void Chord::deamon() {
                 }
             }
         } else if (type == "setret") {
-            pthread_cond_broadcast(set_cond);
+            pthread_cond_broadcast(&set_cond);
         } else if (type == "getret") {
-
+            pthread_mutex_lock(&mutex);
+            if (match.size() < 4) {
+                get_success = false;
+            } else {
+                get_success = getmatch(1, msg, match) == "true";
+                for (int i = 2)
+            }
+            pthread_mutex_unlock(&mutex);
+            pthread_cond_broadcast(&get_cond);
         }
     }
 }

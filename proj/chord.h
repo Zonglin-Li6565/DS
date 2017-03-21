@@ -47,6 +47,9 @@ private:
     std::vector<std::pair<int, std::pair<std::string, int> > > finger_table;
     std::vector<std::pair<int, std::pair<std::string, int> > > successors;   // successors in order
     std::map<std::string, std::string> local_table;
+    bool get_success;
+    std::string get_value;
+    std::vector<int> owners;
 
     // functions
     unsigned char hash(unsigned char * char_arr, int length);
