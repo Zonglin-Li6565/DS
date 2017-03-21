@@ -42,7 +42,7 @@ private:
 
     // need protection
     bool running;
-    std::vector<std::tuple<int, std::string, int> > finger_table;
+    std::vector<std::pair<int, std::pair<std::string, int> > > finger_table;
     std::vector<std::pair<std::string, int> > successors;   // successors in order
     std::map<std::string, std::string> local_table;
 

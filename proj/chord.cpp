@@ -47,11 +47,11 @@ void Chord::set_peers(const std::map<int, std::pair<std::string, int> > & table)
         if (lookup[idx] == NULL) {
             for (int j = idx - 1; j >= 0; j --) {
                 if (lookup[j] != NULL) {
-                    finger_table.push_back(*lookup[j]);
+                    finger_table.push_back(std::make_pair(idx, *lookup[j]));
                 }
             }
         } else {
-            finger_table.push_back(*lookup[idx]);
+            finger_table.push_back(std::make_pair(idx, *lookup[j]));
         }
     }
     // find successors
@@ -141,9 +141,27 @@ void Chord::deamon() {
                     continue;
                 }
                 std::string key = getmatch(1, msg, match);
-                if (self_hash == hash(key.c_str(), key.size())) {       // just insert
+                unsigned char key_hash = hash(key.c_str()
+                if (self_hash == key_hash, key.size())) {       // just insert
                     goto label1;
-                } else 
+                } else {
+                    unsigned int max = 0;
+                    std::pair<std::string, int> > next;
+                    bool found = false;
+                    for (auto i : finger_table) {
+                        unsigned int h = (unsigned int)std::get<0>(i);
+                        if (h < key_hash && h > max) {
+                            max = h;
+                            next = std::get<1>(i);
+                            found = true;
+                        }
+                    }
+                    if (found) {
+                        cast_helper.send(CHORD_TAG, msg, std::get<0>(next), std::get<1>(next));
+                    } else {
+
+                    }
+                }
                 break;
             case "set":
                 if (match.size() != 5) {
