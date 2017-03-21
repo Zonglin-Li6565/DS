@@ -89,6 +89,10 @@ unsigned char Chord::hash(unsigned char * char_arr, int length) {
     return h;
 }
 
+void Chord::begin() {
+    background_thrd = std::thread(std::bind(&Chord::deamon, this));
+}
+
 void Chord::deamon() {
     
 }

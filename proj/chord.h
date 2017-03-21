@@ -17,7 +17,6 @@ class Chord {
 public:
     Chord(int pid) : self_id(pid), cast_helper(pid){
         self_hash = hash((unsigned char *) &pid, 4);
-        background_thrd = std::thread(std::bind(&Chord::deamon, this));
     };
     void set_peers(const std::map<int, std::pair<std::string, int> > & table);
     int set(std::string key, std::string value);
@@ -25,6 +24,9 @@ public:
     std::vector<int> owner(std::string key);
     std::string list_local();
     const Unicast & get_unicast();
+
+    void begin();
+    void end();
 
 private:
     int self_id;
