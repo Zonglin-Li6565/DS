@@ -1,6 +1,7 @@
-#include "chord.h"
 #include <cstring>
 #include <pthread.h>
+#include "exception.h"
+#include "chord.h"
 
 #define getmatch(i, str, match) \
     str.substr(match.position(i) + 1, match.position(i) + match.length(i) - 2)
@@ -87,12 +88,30 @@ std::string Chord::get(std::string key) {
     pthread_mutex_lock(&mutex);
     cast_helper.send(CHORD_TAG, message, std::get<0>(self_addr), std::get<1>(self_addr));
     pthread_cond_wait(&get_cond, &mutex);
-    pthread_mutex_unlock(&mutex);
-    return 0;
+    if (get_success) {
+        pthread_mutex_unlock(&mutex);
+        return get_value;
+    } else {
+        pthread_mutex_unlock(&mutex);
+        throw NOT_FOUND;
+    }
+    return "";
 }
 
 std::vector<int> Chord::owner(std::string key) {
-    return std::vector<int>();
+    std::string message = "<get><false><" + key + "><"
+                        + std::get<0>(self_addr) + "><" 
+                        + std::to_string(std::get<1>(self_addr));
+    pthread_mutex_lock(&mutex);
+    cast_helper.send(CHORD_TAG, message, std::get<0>(self_addr), std::get<1>(self_addr));
+    pthread_cond_wait(&get_cond, &mutex);
+    if (get_success) {
+        pthread_mutex_unlock(&mutex);
+        return owners;
+    } else {
+        pthread_mutex_unlock(&mutex);
+        throw NOT_FOUND;
+    }
 }
 
 std::string Chord::list_local() {
