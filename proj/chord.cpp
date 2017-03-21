@@ -35,11 +35,11 @@ Chord::~Chord() {
 void Chord::set_peers(const std::map<int, std::pair<std::string, int> > & table) {
     // At most 256 peers
     // input is a map from id to pair <id addr, port>
-    const std::pair<std::string, int> * lookup[MAX_NUM_PEERS];
+    const std::pair<int , std::pair<std::string, int> > * lookup[MAX_NUM_PEERS];
     memset(lookup, 0, sizeof(lookup));
     for (auto it = table.begin(); it != table.end(); it ++) {
         unsigned char * id = (unsigned char *)&(it->first);
-        lookup[hash(id, 4)] = &(it->second);
+        lookup[hash(id, 4)] = make_pair(it->first, &(it->second));
     }
     // fill the finger table
     for (int i = 0; (1 << i) < MAX_NUM_PEERS; i++) {
@@ -59,7 +59,7 @@ void Chord::set_peers(const std::map<int, std::pair<std::string, int> > & table)
         int idx = (i + self_hash) % MAX_NUM_PEERS;
         if (lookup[idx] != NULL) {
             j ++;
-            successors.push_back(*lookup[j]);
+            successors.push_back(std::make_pair(_T1 &&__x, *lookup[j]));
         }
     }
     cast_helper.begin();    // start the server thread
@@ -163,7 +163,7 @@ void Chord::deamon() {
                 } else {
                     std::string message = std::string("<set>") + "<true><" + key + "><" + getmatch(2, msg, match) 
                                           + "><" + getmatch(3, msg, match) + "><" + getmatch(4, msg, match) + ">";
-                    cast_helper.send(CHORD_TAG, message, std::get<0>(successors[0]), std::get<1>(successors[1]));
+                    cast_helper.send(CHORD_TAG, message, std::get<0>(std::get<1>(successors[0])), std::get<1>(std::get<1>(successors[1])));
                 }
             }
         } else if (type == "get") {
@@ -182,6 +182,12 @@ void Chord::deamon() {
                     contains = true;
                 }
                 pthread_mutex_unlock(&mutex);
+                std::string message;
+                if (contains) {
+                    message = "<getret><true><" + value + "><" + std::to_string(self_id) + ">";     // no backup
+                } else {
+
+                }
                 cast_helper.send(CHORD_TAG, "<setret><true>", getmatch(3, msg, match), std::stoi(getmatch(4, msg, match)));            
             } else {
                 unsigned int max = 0;
