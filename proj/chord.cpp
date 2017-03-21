@@ -99,9 +99,21 @@ void Chord::begin() {
 }
 
 void Chord::end() {
+    pthread_mutex_lock(&mutex);
     running = false;
+    pthread_mutex_unlock(&mutex);
+    background_thrd.join();
 }
 
 void Chord::deamon() {
+    bool l_running;
     
+    while (true) {
+        pthread_mutex_lock(&mutex);
+        l_running = running;
+        pthread_mutex_unlock(&mutex);
+        if (!l_running) {
+
+        }
+    }
 }
