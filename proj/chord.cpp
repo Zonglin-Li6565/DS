@@ -32,26 +32,26 @@ Chord::~Chord() {
     cast_helper.stop();
 }
 
-void Chord::set_peers(const std::map<int, std::pair<std::string, int> > & table) {
+void Chord::set_peers(std::map<int, std::pair<std::string, int> > & table) {
     // At most 256 peers
     // input is a map from id to pair <id addr, port>
-    const std::pair<int , std::pair<std::string, int> > * lookup[MAX_NUM_PEERS];
+    const int * lookup[MAX_NUM_PEERS];
     memset(lookup, 0, sizeof(lookup));
     for (auto it = table.begin(); it != table.end(); it ++) {
         unsigned char * id = (unsigned char *)&(it->first);
-        lookup[hash(id, 4)] = make_pair(it->first, &(it->second));
+        lookup[hash(id, 4)] = &it->first;
     }
     // fill the finger table
     for (int i = 0; (1 << i) < MAX_NUM_PEERS; i++) {
         int idx = (self_hash + (1 << i)) % MAX_NUM_PEERS;
         if (lookup[idx] == NULL) {
-            for (int j = idx - 1; j >= 0; j --) {
-                if (lookup[j] != NULL) {
-                    finger_table.push_back(std::make_pair(idx, *lookup[j]));
+            for (int j = 0; j < MAX_NUM_PEERS; j ++) {
+                if (lookup[(j + idx) % MAX_NUM_PEERS] != NULL) {
+                    finger_table.push_back(std::make_pair(idx, table[*lookup[(j + idx) % MAX_NUM_PEERS]]));
                 }
             }
         } else {
-            finger_table.push_back(std::make_pair(idx, *lookup[j]));
+            finger_table.push_back(std::make_pair(idx, table[*lookup[idx]]));
         }
     }
     // find successors
@@ -59,7 +59,7 @@ void Chord::set_peers(const std::map<int, std::pair<std::string, int> > & table)
         int idx = (i + self_hash) % MAX_NUM_PEERS;
         if (lookup[idx] != NULL) {
             j ++;
-            successors.push_back(std::make_pair(_T1 &&__x, *lookup[j]));
+            successors.push_back(std::make_pair(*lookup[j], table[*lookup[j]]));
         }
     }
     cast_helper.begin();    // start the server thread
