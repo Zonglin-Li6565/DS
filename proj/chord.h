@@ -18,7 +18,10 @@
 
 class Chord {
 public:
-    Chord(int pid) : self_id(pid), cast_helper(pid), running(false), expression("^<.+>"){
+    Chord(int pid) : self_id(pid), cast_helper(pid), 
+                     running(false), expression("^<.+>"),
+                     set_cond(PTHREAD_COND_INITIALIZER),
+                     get_cond(PTHREAD_COND_INITIALIZER){
         self_hash = hash((unsigned char *) &pid, 4);
     };
     ~Chord();
@@ -34,6 +37,7 @@ public:
 
 private:
     int self_id;
+    std::pair<std::string, int> self_addr;
     unsigned char self_hash;
     Unicast cast_helper;
     std::thread background_thrd;
@@ -41,11 +45,12 @@ private:
     mutable pthread_cond_t set_cond;
     mutable pthread_cond_t get_cond;
     const std::regex expression;
+    std::vector<std::pair<int, std::pair<std::string, int> > > finger_table;
+    std::vector<std::pair<int, std::pair<std::string, int> > > successors;   // successors in order
+
 
     // need protection
     bool running;
-    std::vector<std::pair<int, std::pair<std::string, int> > > finger_table;
-    std::vector<std::pair<int, std::pair<std::string, int> > > successors;   // successors in order
     std::map<std::string, std::string> local_table;
     bool get_success;
     std::string get_value;

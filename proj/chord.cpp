@@ -36,6 +36,9 @@ Chord::~Chord() {
 void Chord::set_peers(std::map<int, std::pair<std::string, int> > & table) {
     // At most 256 peers
     // input is a map from id to pair <id addr, port>
+    
+    self_addr = table[self_id];
+
     const int * lookup[MAX_NUM_PEERS];
     memset(lookup, 0, sizeof(lookup));
     for (auto it = table.begin(); it != table.end(); it ++) {
@@ -68,9 +71,13 @@ void Chord::set_peers(std::map<int, std::pair<std::string, int> > & table) {
 
 int Chord::set(std::string key, std::string value) {
     unsigned char h = hash((unsigned char *)key.c_str(), key.size());
-
-    cast_helper.send(CHORD_TAG, "", "127.0.0.1", cast_helper.get_port());
-    
+    std::string message = "<set><false><" + key + "><" + value 
+                        + "><" + std::get<0>(self_addr) + "><" 
+                        + std::to_string(std::get<1>(self_addr));
+    pthread_mutex_lock(&mutex);
+    cast_helper.send(CHORD_TAG, message, std::get<0>(self_addr), std::get<1>(self_addr));
+    pthread_cond_wait(&set_cond, &mutex);
+    pthread_mutex_unlock(&mutex);
     return -1;
 }
 
