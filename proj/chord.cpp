@@ -141,9 +141,20 @@ void Chord::deamon() {
                     continue;
                 }
                 std::string key = getmatch(1, msg, match);
-                if (self_hash == hash(key.c_str(), key.size()))
+                if (self_hash == hash(key.c_str(), key.size())) {       // just insert
+                    goto label1;
+                }
                 break;
             case "set":
+                if (match.size() != 5) {
+                    continue;
+                }
+                std::string key = getmatch(1, msg, match);
+label1:
+                pthread_mutex_lock(&mutex);
+                local_table[key] = getmatch(2, msg, match);
+                pthread_mutex_unlock(&mutex);
+                cast_helper.send(CHORD_TAG, "<setret><true>", getmatch(3, msg, match), std::stoi(getmatch(4, msg, match)));
                 break;
             case "get":
                 break;
