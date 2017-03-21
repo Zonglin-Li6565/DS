@@ -135,53 +135,48 @@ void Chord::deamon() {
             continue;
         }
         std::string type = getmatch(0, msg, match);
-        switch (type) {
-            case "looking":
-                if (match.size() != 5) {
-                    continue;
+        if (type == "looking") {
+            if (match.size() != 5) {
+                continue;
+            }
+            std::string key = getmatch(1, msg, match);
+            unsigned char key_hash = hash((unsigned char *)key.c_str(), key.size());
+            if (self_hash == key_hash) {       // just insert
+                goto label1;
+            } else {
+                unsigned int max = 0;
+                std::pair<std::string, int> next;
+                bool found = false;
+                for (auto i : finger_table) {
+                    unsigned int h = (unsigned int)std::get<0>(i);
+                    if (h < key_hash && h > max) {
+                        max = h;
+                        next = std::get<1>(i);
+                        found = true;
+                    }
                 }
-                std::string key = getmatch(1, msg, match);
-                unsigned char key_hash = hash(key.c_str()
-                if (self_hash == key_hash, key.size())) {       // just insert
-                    goto label1;
+                if (found) {
+                    cast_helper.send(CHORD_TAG, msg, std::get<0>(next), std::get<1>(next));
                 } else {
-                    unsigned int max = 0;
-                    std::pair<std::string, int> > next;
-                    bool found = false;
-                    for (auto i : finger_table) {
-                        unsigned int h = (unsigned int)std::get<0>(i);
-                        if (h < key_hash && h > max) {
-                            max = h;
-                            next = std::get<1>(i);
-                            found = true;
-                        }
-                    }
-                    if (found) {
-                        cast_helper.send(CHORD_TAG, msg, std::get<0>(next), std::get<1>(next));
-                    } else {
-
-                    }
+                    std::string message = std::string("<set>") + "<" + key + "><" + getmatch(2, msg, match);
                 }
-                break;
-            case "set":
-                if (match.size() != 5) {
-                    continue;
-                }
-                std::string key = getmatch(1, msg, match);
+            }
+        } else if (type == "set") {
+            if (match.size() != 5) {
+                continue;
+            }
 label1:
-                pthread_mutex_lock(&mutex);
-                local_table[key] = getmatch(2, msg, match);
-                pthread_mutex_unlock(&mutex);
-                cast_helper.send(CHORD_TAG, "<setret><true>", getmatch(3, msg, match), std::stoi(getmatch(4, msg, match)));
-                break;
-            case "get":
-                break;
-            case "setret":
-                break;
-            case "getret":
-                break;
-            default:
-                break;
+            pthread_mutex_lock(&mutex);
+            local_table[getmatch(1, msg, match)] = getmatch(2, msg, match);
+            pthread_mutex_unlock(&mutex);
+            cast_helper.send(CHORD_TAG, "<setret><true>", getmatch(3, msg, match), std::stoi(getmatch(4, msg, match)));
+
+        } else if (type == "get") {
+
+        } else if (type == "setret") {
+
+        } else if (type == "getret") {
+
         }
     }
 }
