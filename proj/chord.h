@@ -15,7 +15,7 @@
 
 class Chord {
 public:
-    Chord(int pid) : self_id(pid), cast_helper(pid){
+    Chord(int pid) : self_id(pid), cast_helper(pid), running(false){
         self_hash = hash((unsigned char *) &pid, 4);
     };
     void set_peers(const std::map<int, std::pair<std::string, int> > & table);
@@ -31,13 +31,17 @@ public:
 private:
     int self_id;
     unsigned char self_hash;
+    Unicast cast_helper;
+    std::thread background_thrd;
+    mutable pthread_mutex_t mutex;
+
+    // need protection
+    bool running;
     std::vector<std::pair<std::string, int> > finger_table;
     std::vector<std::pair<std::string, int> > successors;
     std::map<std::string, std::string> local_table;
-    Unicast cast_helper;
-    std::thread background_thrd;
-    pthread_mutex_t mutex;
 
+    // functions
     unsigned char hash(unsigned char * char_arr, int length);
     void deamon();
 };

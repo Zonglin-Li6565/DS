@@ -89,8 +89,17 @@ unsigned char Chord::hash(unsigned char * char_arr, int length) {
     return h;
 }
 
+const Unicast & Chord::get_unicast() {
+    return cast_helper;
+}
+
 void Chord::begin() {
+    running = true;
     background_thrd = std::thread(std::bind(&Chord::deamon, this));
+}
+
+void Chord::end() {
+    running = false;
 }
 
 void Chord::deamon() {
