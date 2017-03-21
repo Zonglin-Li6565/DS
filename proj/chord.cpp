@@ -24,6 +24,11 @@ static unsigned char ran_table[MAX_NUM_PEERS] = {
     75, 100, 166,  17, 202,  60, 192,  54, 179
 };
 
+Chord::~Chord() {
+    end();
+    cast_helper.stop();
+}
+
 void Chord::set_peers(const std::map<int, std::pair<std::string, int> > & table) {
     // At most 256 peers
     // input is a map from id to pair <id addr, port>
@@ -107,13 +112,14 @@ void Chord::end() {
 
 void Chord::deamon() {
     bool l_running;
-    
+
     while (true) {
         pthread_mutex_lock(&mutex);
         l_running = running;
         pthread_mutex_unlock(&mutex);
         if (!l_running) {
-
+            break;
         }
+        
     }
 }

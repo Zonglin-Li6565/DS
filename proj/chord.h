@@ -18,6 +18,7 @@ public:
     Chord(int pid) : self_id(pid), cast_helper(pid), running(false){
         self_hash = hash((unsigned char *) &pid, 4);
     };
+    ~Chord();
     void set_peers(const std::map<int, std::pair<std::string, int> > & table);
     int set(std::string key, std::string value);
     std::string get(std::string key);
