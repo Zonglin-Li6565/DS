@@ -9,6 +9,13 @@
 #define getmatch(i, str, match) \
     str.substr(match.position(i) + 1, match.position(i) + match.length(i) - 2)
 
+#define ready_2_set() \
+    key_hash > self_hash &&                     \
+    ((self_hash < (unsigned int)std::get<0>(finger_table[0]) &&                 \
+            key_hash <= (unsigned int)std::get<0>(finger_table[0])) ||          \
+    (self_hash > (unsigned int)std::get<0>(finger_table[0]) &&                  \
+            key_hash <= ((unsigned int)std::get<0>(finger_table[0]) + MAX_NUM_PEERS - 1)))  \
+
 static unsigned char ran_table[MAX_NUM_PEERS] = {
     62,  34,  84,  25, 176, 217,  71, 201,  30,  44, 196,  88,  23,
     198, 250, 195, 174,  65, 113,   9, 249, 132, 253,  31,  57, 155,
@@ -198,15 +205,17 @@ void Chord::deamon() {
                 pthread_mutex_unlock(&mutex);
 
                 cast_helper.send(CHORD_TAG, "<setret><true>", match[4], std::stoi(match[5]));            
-            } else if (key_hash > self_hash && 
-                    ((self_hash < (unsigned int)std::get<0>(finger_table[0]) && key_hash <= (unsigned int)std::get<0>(finger_table[0])) ||
-                    (self_hash > (unsigned int)std::get<0>(finger_table[0]) && key_hash <= ((unsigned int)std::get<0>(finger_table[0]) + MAX_NUM_PEERS - 1)))){
-                std::string message = std::string("<set>") + "<true><" + key + "><" + match[3] 
-                                          + "><" + match[4] + "><" + match[5] + ">";
-                cast_helper.send(CHORD_TAG, message, std::get<0>(std::get<1>(successors[0])), std::get<1>(std::get<1>(successors[0])));
+            } else if (ready_2_set()){
+
+                std::string message = std::string("<set>") + 
+                                      "<true><" + key + "><" + match[3] 
+                                      + "><" + match[4] + "><" + match[5] + ">";
+
+                cast_helper.send(CHORD_TAG, message, std::get<0>(std::get<1>(successors[0])), 
+                                                    std::get<1>(std::get<1>(successors[0])));
             } else {
                 unsigned int max = 0, idx = 0;
-                std::pair<std::string, int> next = std::get<1>(finger_table[0]);
+                auto next = std::get<1>(finger_table[0]);
 
                 for (int i = 0; i < finger_table.size(); i++) {
                     unsigned int h = (unsigned int)std::get<0>(finger_table[i]);
@@ -243,15 +252,18 @@ void Chord::deamon() {
                     message = "<getret><false>";
                 }
                 cast_helper.send(CHORD_TAG, message, match[3], std::stoi(match[4]));
-            } else if (key_hash > self_hash && 
-                    ((self_hash < (unsigned int)std::get<0>(finger_table[0]) && key_hash <= (unsigned int)std::get<0>(finger_table[0])) ||
-                    (self_hash > (unsigned int)std::get<0>(finger_table[0]) && key_hash <= ((unsigned int)std::get<0>(finger_table[0]) + MAX_NUM_PEERS - 1)))){
-                std::string message = std::string("<get>") + "<true><" + key + "><"
-                                         + match[3] + "><" + match[4] + ">";
-                cast_helper.send(CHORD_TAG, message, std::get<0>(std::get<1>(successors[0])), std::get<1>(std::get<1>(successors[0])));
+            } else if (ready_2_set()){
+
+                std::string message = std::string("<get>") + 
+                                      "<true><" + key + "><"
+                                      + match[3] + "><" + match[4] + ">";
+
+                cast_helper.send(CHORD_TAG, message, std::get<0>(std::get<1>(successors[0])), 
+                                                    std::get<1>(std::get<1>(successors[0])));
+
             } else {
                 unsigned int max = 0;
-                std::pair<std::string, int> next = std::get<1>(finger_table[0]);
+                auto next = std::get<1>(finger_table[0]);
                 for (auto i : finger_table) {
                     unsigned int h = (unsigned int)std::get<0>(i);
                     if (h < key_hash && h > max) {
