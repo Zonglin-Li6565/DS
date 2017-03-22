@@ -266,6 +266,7 @@ void Chord::deamon() {
                     printf("contains\n");
                     message = "<getret><true><" + value + "><" + std::to_string(self_id) + ">";     // no backup
                 } else {
+                    printf("not found\n");
                     message = "<getret><false>";
                 }
                 cast_helper.send(CHORD_TAG, message, match[3], std::stoi(match[4]));
@@ -273,7 +274,7 @@ void Chord::deamon() {
                 printf("sending get to %s:%d\n", std::get<0>(std::get<1>(successors[0])), std::get<1>(std::get<1>(successors[0])));
                 std::string message = std::string("<get>") + "<true><" + key + "><"
                                          + match[3] + "><" + match[4] + ">";
-                cast_helper.send(CHORD_TAG, message, std::get<0>(std::get<1>(successors[0])), std::get<1>(std::get<1>(successors[1])));
+                cast_helper.send(CHORD_TAG, message, std::get<0>(std::get<1>(successors[0])), std::get<1>(std::get<1>(successors[0])));
             } else {
                 unsigned int max = 0;
                 std::pair<std::string, int> next;
