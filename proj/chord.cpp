@@ -79,10 +79,10 @@ void Chord::set_peers(std::map<int, std::pair<std::string, int> > & table) {
 
     ////////test////////
 
-    // std::cout << "finger table: " << std::endl;
-    // for (auto a : finger_table) {
-    //     std::cout << std::get<0>(a) << " " << std::get<0>(std::get<1>(a)) << " " << std::get<1>(std::get<1>(a)) << std::endl;
-    // }
+    std::cout << "finger table: " << std::endl;
+    for (auto a : finger_table) {
+        std::cout << std::get<0>(a) << " " << std::get<0>(std::get<1>(a)) << " " << std::get<1>(std::get<1>(a)) << std::endl;
+    }
 
     std::cout << "successors: " << std::endl;
     for (auto a : successors) {
@@ -225,23 +225,19 @@ void Chord::deamon() {
                 cast_helper.send(CHORD_TAG, message, std::get<0>(std::get<1>(successors[0])), std::get<1>(std::get<1>(successors[0])));
             } else {
                 unsigned int max = 0, idx = 0;
-                std::pair<std::string, int> next;
-                bool found = false;
+                std::pair<std::string, int> next = std::get<1>(finger_table[0]);
 
                 for (int i = 0; i < finger_table.size(); i++) {
                     unsigned int h = (unsigned int)std::get<0>(finger_table[i]);
                     if (h < key_hash && h > max) {
                         max = h;
                         next = std::get<1>(finger_table[i]);
-                        found = true;
                         idx = i;
                     }
                 }
 
-                if (found) {
-                    printf("sending looking to %s:%d\n", std::get<0>(next), std::get<1>(next));
-                    cast_helper.send(CHORD_TAG, msg, std::get<0>(next), std::get<1>(next));
-                }
+                printf("sending looking to %s:%d\n", std::get<0>(next), std::get<1>(next));
+                cast_helper.send(CHORD_TAG, msg, std::get<0>(next), std::get<1>(next));
             }
         } else if (type == "get") {
             if (match.size() != 5) {
@@ -277,20 +273,16 @@ void Chord::deamon() {
                 cast_helper.send(CHORD_TAG, message, std::get<0>(std::get<1>(successors[0])), std::get<1>(std::get<1>(successors[0])));
             } else {
                 unsigned int max = 0;
-                std::pair<std::string, int> next;
-                bool found = false;
+                std::pair<std::string, int> next = std::get<1>(finger_table[0]);
                 for (auto i : finger_table) {
                     unsigned int h = (unsigned int)std::get<0>(i);
                     if (h < key_hash && h > max) {
                         max = h;
                         next = std::get<1>(i);
-                        found = true;
                     }
                 }
-                if (found) {
-                    printf("sending looking to %s:%d\n", std::get<0>(next), std::get<1>(next));
-                    cast_helper.send(CHORD_TAG, msg, std::get<0>(next), std::get<1>(next));
-                }
+                printf("sending looking to %s:%d\n", std::get<0>(next), std::get<1>(next));
+                cast_helper.send(CHORD_TAG, msg, std::get<0>(next), std::get<1>(next));
             }
         } else if (type == "setret") {
             pthread_cond_broadcast(&set_cond);
