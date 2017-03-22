@@ -60,7 +60,7 @@ private:
     std::vector<int> owners;
 
     // functions
-    unsigned char hash(unsigned char * char_arr, int length);
+    unsigned char hash(const unsigned char * char_arr, int length);
     void deamon();
 };
 

@@ -48,7 +48,7 @@ void Chord::set_peers(std::map<int, std::pair<std::string, int> > & table) {
     for (auto it = table.begin(); it != table.end(); it ++) {
         unsigned char * id = (unsigned char *)&(it->first);
         lookup[hash(id, 4)] = &it->first;
-        std::cout << "id = " << (int)*id << " " << "hash = " << (int)hash(id, 4) << std::endl;
+        // std::cout << "id = " << (int)*id << " " << "hash = " << (int)hash(id, 4) << std::endl;
     }
     // fill the finger table
     for (int i = 0; (1 << i) < MAX_NUM_PEERS; i++) {
@@ -56,9 +56,9 @@ void Chord::set_peers(std::map<int, std::pair<std::string, int> > & table) {
         if (lookup[idx] == NULL) {
             for (int j = 0; j < MAX_NUM_PEERS; j ++) {
                 if (lookup[(j + idx) % MAX_NUM_PEERS] != NULL) {
-                    printf("%d is not null\n", (j + idx) % MAX_NUM_PEERS);
                     finger_table.push_back(std::make_pair((j + idx) % MAX_NUM_PEERS, 
                                             table[*lookup[(j + idx) % MAX_NUM_PEERS]]));
+                    break;
                 }
             }
         } else {
@@ -66,7 +66,7 @@ void Chord::set_peers(std::map<int, std::pair<std::string, int> > & table) {
         }
     }
     // find successors
-    for (int i = 0, j = 0; i < MAX_NUM_PEERS && j < NUM_SUCCESSORS; i ++) {
+    for (int i = 1, j = 0; i < MAX_NUM_PEERS && j < NUM_SUCCESSORS; i ++) {
         int idx = (i + self_hash) % MAX_NUM_PEERS;
         if (lookup[idx] != NULL) {
             j ++;
@@ -76,10 +76,15 @@ void Chord::set_peers(std::map<int, std::pair<std::string, int> > & table) {
 
     ////////test////////
 
-    std::cout << "finger table: " << std::endl;
-    for (auto a : finger_table) {
-        std::cout << std::get<0>(a) << " " << std::get<0>(std::get<1>(a)) << " " << std::get<1>(std::get<1>(a)) << std::endl;
-    }
+    // std::cout << "finger table: " << std::endl;
+    // for (auto a : finger_table) {
+    //     std::cout << std::get<0>(a) << " " << std::get<0>(std::get<1>(a)) << " " << std::get<1>(std::get<1>(a)) << std::endl;
+    // }
+
+    // std::cout << "successors: " << std::endl;
+    // for (auto a : successors) {
+    //     std::cout << std::get<0>(a) << " " << std::get<0>(std::get<1>(a)) << " " << std::get<1>(std::get<1>(a)) << std::endl;
+    // }
 
     ////////////////////
 
@@ -90,6 +95,7 @@ int Chord::set(std::string key, std::string value) {
     std::string message = "<set><false><" + key + "><" + value 
                         + "><" + std::get<0>(self_addr) + "><" 
                         + std::to_string(std::get<1>(self_addr));
+    printf("hash is %d\n", (int)hash((unsigned char *)key.c_str(), key.size()));
     pthread_mutex_lock(&mutex);
     cast_helper.send(CHORD_TAG, message, std::get<0>(self_addr), std::get<1>(self_addr));
     pthread_cond_wait(&set_cond, &mutex);
@@ -134,7 +140,7 @@ std::string Chord::list_local() {
     return "";
 }
 
-unsigned char Chord::hash(unsigned char * char_arr, int length) {
+unsigned char Chord::hash(const unsigned char * char_arr, int length) {
     unsigned char h = 0;
     for (int i = 0; i < length; i++) {
         h = ran_table[h ^ (char_arr[i])];

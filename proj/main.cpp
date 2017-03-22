@@ -28,4 +28,6 @@ int main(int argc, char* argv[]) {
     }   
     Chord chord(id);
     chord.set_peers(table);
+    chord.begin();
+    
 }
