@@ -44,6 +44,7 @@ void Chord::set_peers(std::map<int, std::pair<std::string, int> > & table) {
     self_addr = table[self_id];
     cast_helper.set_port(std::get<1>(self_addr));
     printf("self port = %d\n", std::get<1>(self_addr));
+    printf("self hash = %d\n", self_hash);
 
     const int * lookup[MAX_NUM_PEERS];
     memset(lookup, 0, sizeof(lookup));
@@ -83,10 +84,10 @@ void Chord::set_peers(std::map<int, std::pair<std::string, int> > & table) {
     //     std::cout << std::get<0>(a) << " " << std::get<0>(std::get<1>(a)) << " " << std::get<1>(std::get<1>(a)) << std::endl;
     // }
 
-    // std::cout << "successors: " << std::endl;
-    // for (auto a : successors) {
-    //     std::cout << std::get<0>(a) << " " << std::get<0>(std::get<1>(a)) << " " << std::get<1>(std::get<1>(a)) << std::endl;
-    // }
+    std::cout << "successors: " << std::endl;
+    for (auto a : successors) {
+        std::cout << std::get<0>(a) << " " << std::get<0>(std::get<1>(a)) << " " << std::get<1>(std::get<1>(a)) << std::endl;
+    }
 
     ////////////////////
 
@@ -189,15 +190,14 @@ void Chord::deamon() {
         // setret:      <setret><true/false>
         // getret:      <getret><true/false><value><owner1id><owner2id>...
         std::string msg = cast_helper.deliever(CHORD_TAG);
+        std::string m_msg = msg;
         printf("message = %s\n", msg.c_str());
         std::smatch sm;
         std::vector<std::string> match;
-        std::regex_search (msg, sm, expression);
-        while (std::regex_search (msg, sm, expression)) {
+        while (std::regex_search (m_msg, sm, expression)) {
             std::string s = sm.str();
             match.push_back(s.substr(1, s.size() - 2));
-            std::cout << s.substr(1, s.size() - 2) << std::endl;
-            msg = sm.suffix();
+            m_msg = sm.suffix();
         }
         if (match.empty()) {
             continue;
