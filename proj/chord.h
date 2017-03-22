@@ -19,7 +19,7 @@
 class Chord {
 public:
     Chord(int pid) : self_id(pid), 
-                     running(false), expression("^<.+>"),
+                     running(false), expression("<.+>"),
                      set_cond(PTHREAD_COND_INITIALIZER),
                      get_cond(PTHREAD_COND_INITIALIZER),
                      mutex(PTHREAD_MUTEX_INITIALIZER){

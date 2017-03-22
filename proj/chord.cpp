@@ -189,6 +189,7 @@ void Chord::deamon() {
         // setret:      <setret><true/false>
         // getret:      <getret><true/false><value><owner1id><owner2id>...
         std::string msg = cast_helper.deliever(CHORD_TAG);
+        printf("message = %s\n", msg.c_str());
         std::smatch match;
         if (match.empty()) {
             continue;

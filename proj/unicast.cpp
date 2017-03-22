@@ -28,11 +28,12 @@ struct connect_info {
 void * receiver_thread(void *arg);
 void * single_connect_thread(void *arg);
 
-Unicast::Unicast () : mutex(PTHREAD_MUTEX_INITIALIZER), expression("^<.+>"){}
+Unicast::Unicast () : mutex(PTHREAD_MUTEX_INITIALIZER), expression("^<.+>"), terminated(true), delay_bound(-1){}
 
-Unicast::Unicast (int portnum) : port(portnum), mutex(PTHREAD_MUTEX_INITIALIZER), expression("^<.+>"){}
+Unicast::Unicast (int portnum) : port(portnum), mutex(PTHREAD_MUTEX_INITIALIZER), expression("^<.+>"), terminated(true), delay_bound(-1){}
 
-Unicast::Unicast (int portnum, int max_delay) : port(portnum), delay_bound(max_delay), mutex(PTHREAD_MUTEX_INITIALIZER), expression("^<.+>"){}
+Unicast::Unicast (int portnum, int max_delay) : port(portnum), delay_bound(max_delay), 
+                        mutex(PTHREAD_MUTEX_INITIALIZER), expression("^<.+>"), terminated(true){}
 
 int Unicast::send (std::string tag, std::string msg, std::string host_ip, int host_port) const {
     msg = "<" + tag + ">" + msg;
@@ -109,6 +110,7 @@ void Unicast::begin() {
         pthread_mutex_unlock(&mutex);
         return;
     }
+    terminated = false;
     pthread_mutex_unlock(&mutex);
     pthread_create(&server_thrd, NULL, receiver_thread, this);
 }
@@ -153,7 +155,9 @@ void * single_connect_thread(void *arg) {
         buffer[n] = '\0';
         msg += buffer;
     } while (n > 0);
-    std::this_thread::sleep_for(std::chrono::milliseconds(rand() % uc->get_delay_bound()));
+    if (uc->get_delay_bound() > 0)
+        std::this_thread::sleep_for(std::chrono::milliseconds(rand() % uc->get_delay_bound()));
+    printf("get message = %s\n", msg.c_str());
     uc->message_arrives(msg);
     delete nc;
     close(sockfd);
