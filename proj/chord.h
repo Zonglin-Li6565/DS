@@ -21,7 +21,8 @@ public:
     Chord(int pid) : self_id(pid), cast_helper(pid), 
                      running(false), expression("^<.+>"),
                      set_cond(PTHREAD_COND_INITIALIZER),
-                     get_cond(PTHREAD_COND_INITIALIZER){
+                     get_cond(PTHREAD_COND_INITIALIZER),
+                     mutex(PTHREAD_MUTEX_INITIALIZER){
         self_hash = hash((unsigned char *) &pid, 4);
     };
     ~Chord();

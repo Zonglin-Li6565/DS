@@ -36,7 +36,7 @@ Chord::~Chord() {
 
 void Chord::set_peers(std::map<int, std::pair<std::string, int> > & table) {
     // At most 256 peers
-    // input is a map from id to pair <id addr, port>
+    // input is a map from id to pair <ip addr, port>
     
     self_addr = table[self_id];
 
@@ -136,10 +136,12 @@ void Chord::begin() {
 }
 
 void Chord::end() {
-    pthread_mutex_lock(&mutex);
-    running = false;
-    pthread_mutex_unlock(&mutex);
-    background_thrd.join();
+    if (running) {
+        pthread_mutex_lock(&mutex);
+        running = false;
+        pthread_mutex_unlock(&mutex);
+        background_thrd.join();
+    }
 }
 
 void Chord::deamon() {
