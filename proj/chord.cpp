@@ -3,6 +3,9 @@
 #include "exception.h"
 #include "chord.h"
 
+
+#include <iostream>
+
 #define getmatch(i, str, match) \
     str.substr(match.position(i) + 1, match.position(i) + match.length(i) - 2)
 
@@ -45,6 +48,7 @@ void Chord::set_peers(std::map<int, std::pair<std::string, int> > & table) {
     for (auto it = table.begin(); it != table.end(); it ++) {
         unsigned char * id = (unsigned char *)&(it->first);
         lookup[hash(id, 4)] = &it->first;
+        std::cout << "id = " << (int)*id << " " << "hash = " << (int)hash(id, 4) << std::endl;
     }
     // fill the finger table
     for (int i = 0; (1 << i) < MAX_NUM_PEERS; i++) {
@@ -64,9 +68,19 @@ void Chord::set_peers(std::map<int, std::pair<std::string, int> > & table) {
         int idx = (i + self_hash) % MAX_NUM_PEERS;
         if (lookup[idx] != NULL) {
             j ++;
-            successors.push_back(std::make_pair(*lookup[j], table[*lookup[j]]));
+            successors.push_back(std::make_pair(*lookup[idx], table[*lookup[idx]]));
         }
     }
+
+    ////////test////////
+
+    std::cout << "finger table: " << std::endl;
+    for (auto a : finger_table) {
+        std::cout << std::get<0>(a) << " " << std::get<0>(std::get<1>(a)) << " " << std::get<1>(std::get<1>(a)) << std::endl;
+    }
+
+    ////////////////////
+
     cast_helper.begin();    // start the server thread
 }
 
