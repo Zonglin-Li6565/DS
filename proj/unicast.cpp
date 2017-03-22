@@ -131,7 +131,7 @@ void Unicast::message_arrives(std::string msg) const {
         return;
     }
     std::string tag = msg.substr(match.position(0) + 1, match.position(0) + match.length(0) - 2);
-    printf("tag = %s\n", tag.c_str());
+    //printf("tag = %s\n", tag.c_str());
     pthread_mutex_lock(&mutex);
     if (wait_conds.find(tag) == wait_conds.end()) {
         pthread_mutex_unlock(&mutex);
@@ -160,7 +160,7 @@ void * single_connect_thread(void *arg) {
     } while (n > 0);
     if (uc->get_delay_bound() > 0)
         std::this_thread::sleep_for(std::chrono::milliseconds(rand() % uc->get_delay_bound()));
-    printf("get message = %s\n", msg.c_str());
+    //printf("get message = %s\n", msg.c_str());
     uc->message_arrives(msg);
     delete nc;
     close(sockfd);

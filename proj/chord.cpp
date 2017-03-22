@@ -43,8 +43,8 @@ void Chord::set_peers(std::map<int, std::pair<std::string, int> > & table) {
     
     self_addr = table[self_id];
     cast_helper.set_port(std::get<1>(self_addr));
-    printf("self port = %d\n", std::get<1>(self_addr));
-    printf("self hash = %d\n", self_hash);
+    // printf("self port = %d\n", std::get<1>(self_addr));
+    // printf("self hash = %d\n", self_hash);
 
     const int * lookup[MAX_NUM_PEERS];
     memset(lookup, 0, sizeof(lookup));
@@ -191,7 +191,7 @@ void Chord::deamon() {
         // getret:      <getret><true/false><value><owner1id><owner2id>...
         std::string msg = cast_helper.deliever(CHORD_TAG);
         std::string m_msg = msg;
-        printf("message = %s\n", msg.c_str());
+        // printf("message = %s\n", msg.c_str());
         std::smatch sm;
         std::vector<std::string> match;
         while (std::regex_search (m_msg, sm, expression)) {
@@ -203,7 +203,7 @@ void Chord::deamon() {
             continue;
         }
         std::string type = match[0];
-        printf("%s\b", type.c_str());
+        // printf("%s\b", type.c_str());
         if (type == "set") {
             if (match.size() != 6) {
                 continue;
@@ -235,10 +235,12 @@ void Chord::deamon() {
 
                 if (found) {
                     cast_helper.send(CHORD_TAG, msg, std::get<0>(next), std::get<1>(next));
+                    printf("sending looking to %s:%d\n", std::get<0>(next), std::get<1>(next));
                 } else {
                     std::string message = std::string("<set>") + "<true><" + key + "><" + match[3] 
                                           + "><" + match[4] + "><" + match[5] + ">";
                     cast_helper.send(CHORD_TAG, message, std::get<0>(std::get<1>(successors[0])), std::get<1>(std::get<1>(successors[0])));
+                    printf("sending set to %s:%d\n", std::get<0>(std::get<1>(successors[0])), std::get<1>(std::get<1>(successors[0])));
                 }
             }
         } else if (type == "get") {
