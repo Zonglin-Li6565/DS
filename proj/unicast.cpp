@@ -91,6 +91,10 @@ int Unicast::get_port() const {
     return port;
 }
 
+void Unicast::set_port(int portnum) {
+    port = portnum;
+}
+
 bool Unicast::running() const {
     bool copy;
     pthread_mutex_lock(&mutex);

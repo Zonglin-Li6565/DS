@@ -10,6 +10,8 @@
 class Unicast {
 public:
 
+    Unicast ();
+
     /**
      * Constructor 
      * @param portnum   the port number
@@ -33,6 +35,8 @@ public:
      *         to open the socket
      */
     int send (std::string tag, std::string msg, std::string host_ip, int host_port) const;
+
+    void set_port(int portnum);
 
     /**
      * Returns the port information. Thread safe

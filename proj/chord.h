@@ -18,7 +18,7 @@
 
 class Chord {
 public:
-    Chord(int pid) : self_id(pid), cast_helper(pid), 
+    Chord(int pid) : self_id(pid), 
                      running(false), expression("^<.+>"),
                      set_cond(PTHREAD_COND_INITIALIZER),
                      get_cond(PTHREAD_COND_INITIALIZER),

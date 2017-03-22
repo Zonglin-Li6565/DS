@@ -42,6 +42,8 @@ void Chord::set_peers(std::map<int, std::pair<std::string, int> > & table) {
     // input is a map from id to pair <ip addr, port>
     
     self_addr = table[self_id];
+    cast_helper.set_port(std::get<1>(self_addr));
+    printf("self port = %d\n", std::get<1>(self_addr));
 
     const int * lookup[MAX_NUM_PEERS];
     memset(lookup, 0, sizeof(lookup));
