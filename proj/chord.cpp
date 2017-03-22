@@ -74,20 +74,6 @@ void Chord::set_peers(std::map<int, std::pair<std::string, int> > & table) {
         }
     }
 
-    ////////test////////
-
-    // std::cout << "finger table: " << std::endl;
-    // for (auto a : finger_table) {
-    //     std::cout << std::get<0>(a) << " " << std::get<0>(std::get<1>(a)) << " " << std::get<1>(std::get<1>(a)) << std::endl;
-    // }
-
-    // std::cout << "successors: " << std::endl;
-    // for (auto a : successors) {
-    //     std::cout << std::get<0>(a) << " " << std::get<0>(std::get<1>(a)) << " " << std::get<1>(std::get<1>(a)) << std::endl;
-    // }
-
-    ////////////////////
-
     cast_helper.begin();    // start the server thread
 }
 
