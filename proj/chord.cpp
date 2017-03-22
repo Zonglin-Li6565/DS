@@ -190,23 +190,19 @@ void Chord::deamon() {
         // getret:      <getret><true/false><value><owner1id><owner2id>...
         std::string msg = cast_helper.deliever(CHORD_TAG);
         printf("message = %s\n", msg.c_str());
-        std::smatch match;
-        std::regex_search (msg, match, expression);
+        std::smatch sm;
+        std::vector<std::string> match;
+        std::regex_search (msg, sm, expression);
+        while (std::regex_search (msg, sm, expression)) {
+            printf("%s\n", sm.str().c_str());
+            msg = sm.suffix();
+        }
         if (match.empty()) {
             continue;
         }
-        printf("%d\n", match.size());
         std::string type = getmatch(0, msg, match);
         printf("%s\b", type.c_str());
         if (type == "set") {
-
-            // printf("%s, %s, %s, %s, %s, %s\n", 
-            //     getmatch(0, msg, match).c_str(),
-            //     getmatch(1, msg, match).c_str(),
-            //     getmatch(2, msg, match).c_str(),
-            //     getmatch(3, msg, match).c_str(),
-            //     getmatch(4, msg, match).c_str(),
-            //     getmatch(5, msg, match).c_str());
             if (match.size() != 6) {
                 continue;
             }
