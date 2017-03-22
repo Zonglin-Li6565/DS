@@ -220,27 +220,30 @@ void Chord::deamon() {
                 cast_helper.send(CHORD_TAG, "<setret><true>", match[4], std::stoi(match[5]));            
             } else {
 
-                unsigned int max = 0;
+                unsigned int max = 0, idx = 0;
                 std::pair<std::string, int> next;
                 bool found = false;
 
-                for (auto i : finger_table) {
-                    unsigned int h = (unsigned int)std::get<0>(i);
+                for (int i = 0; i < finger_table.size(); i++) {
+                    unsigned int h = (unsigned int)std::get<0>(finger_table[i]);
                     if (h < key_hash && h > max) {
                         max = h;
-                        next = std::get<1>(i);
+                        next = std::get<1>(finger_table[i]);
                         found = true;
+                        idx = i;
                     }
                 }
 
                 if (found) {
-                    cast_helper.send(CHORD_TAG, msg, std::get<0>(next), std::get<1>(next));
-                    printf("sending looking to %s:%d\n", std::get<0>(next), std::get<1>(next));
-                } else {
-                    std::string message = std::string("<set>") + "<true><" + key + "><" + match[3] 
+                    std::string message;
+                    if (idx != 0) {
+                        message = msg;
+                    } else {
+                        message = std::string("<set>") + "<true><" + key + "><" + match[3] 
                                           + "><" + match[4] + "><" + match[5] + ">";
+                    }
+                    printf("sending looking to %s:%d\n", std::get<0>(next), std::get<1>(next));
                     cast_helper.send(CHORD_TAG, message, std::get<0>(std::get<1>(successors[0])), std::get<1>(std::get<1>(successors[0])));
-                    printf("sending set to %s:%d\n", std::get<0>(std::get<1>(successors[0])), std::get<1>(std::get<1>(successors[0])));
                 }
             }
         } else if (type == "get") {
