@@ -39,6 +39,14 @@ int main(int argc, char* argv[]) {
             std::cin >> key >> val;
             chord.set(key, val);
             std::cout << "set successful" << std::endl;
+        } else if (s == "get") {
+            std::string key;
+            std::cin >> key;
+            try{
+                std::cout << "found: " << chord.get(key) << std::endl;
+            } catch(int e) {
+                std::cout << "not found" << std::endl;
+            }
         }
     }
 }
