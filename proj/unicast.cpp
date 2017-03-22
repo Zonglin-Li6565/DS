@@ -28,6 +28,8 @@ struct connect_info {
 void * receiver_thread(void *arg);
 void * single_connect_thread(void *arg);
 
+Unicast::Unicast () : mutex(PTHREAD_MUTEX_INITIALIZER), expression("^<.+>"){}
+
 Unicast::Unicast (int portnum) : port(portnum), mutex(PTHREAD_MUTEX_INITIALIZER), expression("^<.+>"){}
 
 Unicast::Unicast (int portnum, int max_delay) : port(portnum), delay_bound(max_delay), mutex(PTHREAD_MUTEX_INITIALIZER), expression("^<.+>"){}

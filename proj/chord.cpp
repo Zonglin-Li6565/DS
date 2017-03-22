@@ -137,7 +137,11 @@ std::vector<int> Chord::owner(std::string key) {
 }
 
 std::string Chord::list_local() {
-    return "";
+    std::string str = "";
+    for (auto it = local_table.begin(); it != local_table.end(); it ++) {
+        str += it->first + ":" + it->second + "\n";
+    }
+    return str;
 }
 
 unsigned char Chord::hash(const unsigned char * char_arr, int length) {

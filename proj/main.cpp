@@ -29,5 +29,15 @@ int main(int argc, char* argv[]) {
     Chord chord(id);
     chord.set_peers(table);
     chord.begin();
-    
+    while(1) {
+        std::string s;
+        std::cin >> s;
+        if (s == "list") {
+            std::cout << chord.list_local() << std::endl;
+        } else if (s == "set") {
+            std::string key, val;
+            std::cin >> key >> val;
+            chord.set(key, val);
+        }
+    }
 }
