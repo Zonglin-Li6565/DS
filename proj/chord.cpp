@@ -56,7 +56,9 @@ void Chord::set_peers(std::map<int, std::pair<std::string, int> > & table) {
         if (lookup[idx] == NULL) {
             for (int j = 0; j < MAX_NUM_PEERS; j ++) {
                 if (lookup[(j + idx) % MAX_NUM_PEERS] != NULL) {
-                    finger_table.push_back(std::make_pair(idx, table[*lookup[(j + idx) % MAX_NUM_PEERS]]));
+                    printf("%d is not null\n", (j + idx) % MAX_NUM_PEERS);
+                    finger_table.push_back(std::make_pair((j + idx) % MAX_NUM_PEERS, 
+                                            table[*lookup[(j + idx) % MAX_NUM_PEERS]]));
                 }
             }
         } else {

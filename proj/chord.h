@@ -46,7 +46,9 @@ private:
     mutable pthread_cond_t set_cond;
     mutable pthread_cond_t get_cond;
     const std::regex expression;
+    //                    hash val          ipaddr    portnum
     std::vector<std::pair<int, std::pair<std::string, int> > > finger_table;
+    //                    id                ipaddr    portnum
     std::vector<std::pair<int, std::pair<std::string, int> > > successors;   // successors in order
 
 
