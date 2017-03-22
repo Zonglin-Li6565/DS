@@ -20,6 +20,8 @@
 
 #define IN_BUF_SIZE     256
 
+#define UNICAST_REGEX "^<[^(<|>)]+>"
+
 struct connect_info {
     Unicast * unicast;
     int sockfd;
@@ -28,12 +30,12 @@ struct connect_info {
 void * receiver_thread(void *arg);
 void * single_connect_thread(void *arg);
 
-Unicast::Unicast () : mutex(PTHREAD_MUTEX_INITIALIZER), expression("^<.+>"), terminated(true), delay_bound(-1){}
+Unicast::Unicast () : mutex(PTHREAD_MUTEX_INITIALIZER), expression(UNICAST_REGEX), terminated(true), delay_bound(-1){}
 
-Unicast::Unicast (int portnum) : port(portnum), mutex(PTHREAD_MUTEX_INITIALIZER), expression("^<.+>"), terminated(true), delay_bound(-1){}
+Unicast::Unicast (int portnum) : port(portnum), mutex(PTHREAD_MUTEX_INITIALIZER), expression(UNICAST_REGEX), terminated(true), delay_bound(-1){}
 
 Unicast::Unicast (int portnum, int max_delay) : port(portnum), delay_bound(max_delay), 
-                        mutex(PTHREAD_MUTEX_INITIALIZER), expression("^<.+>"), terminated(true){}
+                        mutex(PTHREAD_MUTEX_INITIALIZER), expression(UNICAST_REGEX), terminated(true){}
 
 int Unicast::send (std::string tag, std::string msg, std::string host_ip, int host_port) const {
     msg = "<" + tag + ">" + msg;
@@ -129,6 +131,7 @@ void Unicast::message_arrives(std::string msg) const {
         return;
     }
     std::string tag = msg.substr(match.position(0) + 1, match.position(0) + match.length(0) - 2);
+    printf("tag = %s\n", tag.c_str());
     pthread_mutex_lock(&mutex);
     if (wait_conds.find(tag) == wait_conds.end()) {
         pthread_mutex_unlock(&mutex);

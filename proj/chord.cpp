@@ -202,6 +202,14 @@ void Chord::deamon() {
             std::string key = getmatch(2, msg, match);
             unsigned char key_hash = hash((unsigned char *)key.c_str(), key.size());
 
+            printf("%s, %s, %s, %s, %s, %s\n", 
+                getmatch(0, msg, match).c_str(),
+                getmatch(1, msg, match).c_str(),
+                getmatch(2, msg, match).c_str(),
+                getmatch(3, msg, match).c_str(),
+                getmatch(4, msg, match).c_str(),
+                getmatch(5, msg, match).c_str());
+
             if (self_hash == key_hash || getmatch(1, msg, match) == "true") {       // just insert
 
                 pthread_mutex_lock(&mutex);

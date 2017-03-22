@@ -15,6 +15,7 @@
 #define MAX_NUM_PEERS 256
 #define NUM_SUCCESSORS 2
 #define CHORD_TAG "chord"
+#define CHORD_REGEX "<[^(<|>)]+>"
 
 class Chord {
 public:
