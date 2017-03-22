@@ -38,6 +38,7 @@ int main(int argc, char* argv[]) {
             std::string key, val;
             std::cin >> key >> val;
             chord.set(key, val);
+            std::cout << "set successful" << std::endl;
         }
     }
 }

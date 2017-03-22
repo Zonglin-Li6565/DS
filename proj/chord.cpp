@@ -238,7 +238,7 @@ void Chord::deamon() {
                 } else {
                     std::string message = std::string("<set>") + "<true><" + key + "><" + match[3] 
                                           + "><" + match[4] + "><" + match[5] + ">";
-                    cast_helper.send(CHORD_TAG, message, std::get<0>(std::get<1>(successors[0])), std::get<1>(std::get<1>(successors[1])));
+                    cast_helper.send(CHORD_TAG, message, std::get<0>(std::get<1>(successors[0])), std::get<1>(std::get<1>(successors[0])));
                 }
             }
         } else if (type == "get") {
