@@ -171,6 +171,7 @@ void Chord::deamon() {
         if (!l_running) {
             break;
         }
+        
         // message format:
         //                type
         // looking:     <looking><key><value><(caller) ip><(caller) port>
@@ -178,6 +179,7 @@ void Chord::deamon() {
         // get:         <get><end:true/false><key><(caller) ip><(caller) port>
         // setret:      <setret><true/false>
         // getret:      <getret><true/false><value><owner1id><owner2id>...
+        
         std::string msg = cast_helper.deliever(CHORD_TAG);
         std::string m_msg = msg;
         std::smatch sm;
