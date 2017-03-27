@@ -14,6 +14,10 @@ int main(int argc, char* argv[]) {
     /**
      * call with a.out id
      */
+    if (argc != 2) {
+        std::cout << "needs one parameter" << std::endl;
+        return 1;
+    }
     int id = std::stoi(argv[1]);
     std::ifstream read;
     read.open(argv[2], std::ios::in);
