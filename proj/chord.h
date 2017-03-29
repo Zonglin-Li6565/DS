@@ -19,11 +19,12 @@
 
 class Chord {
 public:
-    Chord(int pid) : self_id(pid), 
-                     running(false), expression(CHORD_REGEX),
-                     set_cond(PTHREAD_COND_INITIALIZER),
-                     get_cond(PTHREAD_COND_INITIALIZER),
-                     mutex(PTHREAD_MUTEX_INITIALIZER){
+    Chord() : Chord(0){};
+    Chord(int pid) : self_id(pid),
+                    mutex(PTHREAD_MUTEX_INITIALIZER),
+                    set_cond(PTHREAD_COND_INITIALIZER),
+                    get_cond(PTHREAD_COND_INITIALIZER),
+                    expression(CHORD_REGEX), running(false){
         self_hash = hash((unsigned char *) &pid, 4);
     };
     ~Chord();

@@ -30,12 +30,12 @@ struct connect_info {
 void * receiver_thread(void *arg);
 void * single_connect_thread(void *arg);
 
-Unicast::Unicast () : mutex(PTHREAD_MUTEX_INITIALIZER), expression(UNICAST_REGEX), terminated(true), delay_bound(-1){}
+Unicast::Unicast () : Unicast(0){}
 
-Unicast::Unicast (int portnum) : port(portnum), mutex(PTHREAD_MUTEX_INITIALIZER), expression(UNICAST_REGEX), terminated(true), delay_bound(-1){}
+Unicast::Unicast (int portnum) : Unicast(portnum, -1){}
 
-Unicast::Unicast (int portnum, int max_delay) : port(portnum), delay_bound(max_delay), 
-                        mutex(PTHREAD_MUTEX_INITIALIZER), expression(UNICAST_REGEX), terminated(true){}
+Unicast::Unicast (int portnum, int max_delay) : port(portnum), delay_bound(max_delay), terminated(true), 
+                                                mutex(PTHREAD_MUTEX_INITIALIZER), expression(UNICAST_REGEX){}
 
 int Unicast::send (std::string tag, std::string msg, std::string host_ip, int host_port) const {
     msg = "<" + tag + ">" + msg;

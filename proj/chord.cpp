@@ -216,15 +216,14 @@ void Chord::deamon() {
                 cast_helper.send(CHORD_TAG, message, std::get<0>(std::get<1>(successors[0])), 
                                                     std::get<1>(std::get<1>(successors[0])));
             } else {
-                unsigned int max = 0, idx = 0;
+                unsigned int max = 0;
                 auto next = std::get<1>(finger_table[0]);
 
-                for (int i = 0; i < finger_table.size(); i++) {
+                for (size_t i = 0; i < finger_table.size(); i++) {
                     unsigned int h = (unsigned int)std::get<0>(finger_table[i]);
                     if (h < key_hash && h > max) {
                         max = h;
                         next = std::get<1>(finger_table[i]);
-                        idx = i;
                     }
                 }
                 cast_helper.send(CHORD_TAG, msg, std::get<0>(next), std::get<1>(next));
@@ -285,7 +284,7 @@ void Chord::deamon() {
                 get_success = match[1] == "true";
                 get_value = match[2];
                 owners.clear();
-                for (int i = 3; i < match.size(); i++) {
+                for (size_t i = 3; i < match.size(); i++) {
                     owners.push_back(std::stoi(match[i]));
                 }
             }
