@@ -1,7 +1,7 @@
 #include <cstring>
 #include <pthread.h>
-#include "exception.h"
-#include "chord.h"
+#include <exception.h>
+#include <chord.h>
 
 
 #include <iostream>
